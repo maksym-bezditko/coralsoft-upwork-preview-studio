@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit, JetBrains_Mono } from "next/font/google";
+import { asset } from "@/lib/basePath";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   title: "Coralsoft — Upwork Preview Studio",
   description:
     "Generate 1000×750 Upwork Project Catalog preview images: pick a layout, edit the copy, drop a portrait + screenshots, retint, and export.",
-  icons: { icon: "/assets/logo-white.svg" },
+  icons: { icon: asset("/assets/logo-white.svg") },
 };
 
 export default function RootLayout({

@@ -24,6 +24,19 @@ pnpm lint         # ESLint
 pnpm typecheck    # strict tsc --noEmit
 ```
 
+## Deployment (GitHub Pages)
+
+Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds a static
+export (`output: "export"`) and publishes `out/` to GitHub Pages. The workflow
+reads the Pages base path from `actions/configure-pages` and passes it as
+`NEXT_PUBLIC_BASE_PATH` so assets resolve under the project subpath, then drops a
+`.nojekyll` file so `_next/*` is served.
+
+Live URL: **https://maksym-bezditko.github.io/coralsoft-upwork-preview-studio/**
+
+If the first run can't auto-enable Pages, set **Settings → Pages → Source** to
+**GitHub Actions** once and re-run the workflow.
+
 ## How it works
 
 - A single client page (`app/page.tsx`) holds all editor state in `useState`

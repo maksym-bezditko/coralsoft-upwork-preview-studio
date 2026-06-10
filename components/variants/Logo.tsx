@@ -1,3 +1,5 @@
+import { asset } from "@/lib/basePath";
+
 interface LogoProps {
   /** `light` uses the orange-on-transparent mark (for the V2 light canvas). */
   variant?: "white" | "light";
@@ -10,6 +12,7 @@ interface LogoProps {
  * on the V2 light canvas.
  */
 export function Logo({ variant = "white", className = "logo" }: LogoProps) {
-  const src = variant === "light" ? "/assets/logo.svg" : "/assets/logo-white.svg";
+  const src =
+    variant === "light" ? asset("/assets/logo.svg") : asset("/assets/logo-white.svg");
   return <img className={className} src={src} alt="Coralsoft" />;
 }

@@ -8,8 +8,9 @@
 /out/
 next-env.d.ts
 
-# production
+# production / static export
 /build
+/out
 
 # misc
 .DS_Store

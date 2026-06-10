@@ -1,4 +1,5 @@
 import type { EditorState, VariantId } from "@/lib/state";
+import { asset } from "@/lib/basePath";
 import { SectionHeader } from "./SectionHeader";
 import { VariantPicker } from "./VariantPicker";
 import { CopyFields } from "./CopyFields";
@@ -19,7 +20,7 @@ export function Sidebar({ state, set, setScreen, onResetAll }: SidebarProps) {
     <aside className="side overflow-x-hidden overflow-y-auto border-r border-line bg-bg-2">
       <header className="flex items-center gap-[14px] border-b border-line px-6 pb-5 pt-6">
         <img
-          src="/assets/logo-white.svg"
+          src={asset("/assets/logo-white.svg")}
           alt="Coralsoft"
           className="block h-8 w-auto shrink-0"
         />
