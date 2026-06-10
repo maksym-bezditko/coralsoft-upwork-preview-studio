@@ -52,10 +52,12 @@
     --slot-fg: var(--phone-slot-fg, #888);
   }
   .uwe .v-phone .notch {
-    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-    width: 56px; height: 14px;
+    /* Dynamic Island — sized proportionally to the phone (~25% width, real
+       ~3.4:1 pill aspect) so it stays realistic across every phone size. */
+    position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+    width: 25%; aspect-ratio: 3.4 / 1;
     background: var(--phone-frame, #0A0A0B);
-    border-radius: 12px;
+    border-radius: 999px;
     z-index: 4;
   }
 
@@ -239,7 +241,7 @@
     padding: 6px 10px; border-radius: 64px; z-index: 3;
   }
   .uwe.v2 .phones { position: relative; height: 412px;
-    --phone-frame: var(--sec);
+    --phone-frame: #0F0F10; /* fixed phone hardware — not retinted by --sec */
     --phone-border: rgba(15,15,16,0.16);
     --phone-shadow: 0 24px 50px -18px rgba(15,15,16,0.30);
     --phone-screen-bg: #fff;
@@ -458,7 +460,7 @@
   .uwe.v4 .phones {
     position: absolute; right: 44px; top: 96px;
     width: 460px; height: 340px;
-    --phone-frame: var(--sec);
+    --phone-frame: #0F0F10; /* fixed phone hardware — not retinted by --sec */
     --phone-border: rgba(15,15,16,0.30);
     --phone-shadow: 0 24px 50px -18px rgba(15,15,16,0.35);
     --phone-screen-bg: #fff;
@@ -715,7 +717,7 @@
   .uwe.v6 .phones {
     position: absolute; right: 60px; top: 110px;
     width: 480px; height: 360px;
-    --phone-frame: var(--sec);
+    --phone-frame: #0F0F10; /* fixed phone hardware — not retinted by --sec */
     --phone-border: rgba(15,15,16,0.28);
     --phone-shadow: 0 30px 70px -20px rgba(15,15,16,0.4);
     --phone-screen-bg: #fff;

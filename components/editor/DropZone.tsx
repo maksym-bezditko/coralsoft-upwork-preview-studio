@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Upload } from "lucide-react";
-import { fileToDataURL } from "@/lib/state";
+import { processImageFile } from "@/lib/image";
 import { cn } from "@/lib/cn";
 
 interface DropZoneProps {
@@ -19,7 +19,11 @@ export function DropZone({ label, value, onChange, compact = false }: DropZonePr
 
   const pick = async (file: File | null | undefined) => {
     if (!file) return;
-    onChange(await fileToDataURL(file));
+    try {
+      onChange(await processImageFile(file));
+    } catch {
+      /* unreadable / non-image file — leave the slot unchanged */
+    }
   };
 
   return (
