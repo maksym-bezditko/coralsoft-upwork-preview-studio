@@ -2,21 +2,21 @@
 
 import { Download } from "lucide-react";
 import type { ExportFormat } from "@/lib/export";
-import type { VariantId } from "@/lib/state";
 import { Button } from "@/components/ui/button";
 
 interface StageChromeProps {
-  variant: VariantId;
+  /** Left-hand readout, e.g. "1200 × 675 · C1". */
+  spec: string;
   exporting: boolean;
   onExport: (format: ExportFormat) => void;
 }
 
 /** Top bar: spec readout + PNG / JPEG export buttons. */
-export function StageChrome({ variant, exporting, onExport }: StageChromeProps) {
+export function StageChrome({ spec, exporting, onExport }: StageChromeProps) {
   return (
     <div className="relative z-[2] flex items-center justify-between border-b border-line bg-[rgba(15,15,16,0.6)] px-7 py-4 backdrop-blur-md">
       <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-fg-50">
-        1000 × 750 · {variant.toUpperCase()}
+        {spec}
       </span>
       <div className="flex gap-2">
         <Button

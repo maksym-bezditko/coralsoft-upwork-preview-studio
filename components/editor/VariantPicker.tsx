@@ -1,16 +1,21 @@
-import { VARIANT_DEFS, type VariantId } from "@/lib/state";
 import { cn } from "@/lib/cn";
 
-interface VariantPickerProps {
-  value: VariantId;
-  onChange: (id: VariantId) => void;
+interface VariantPickerProps<T extends string> {
+  /** Layout tiles to render — `VARIANT_DEFS` or `CASE_VARIANT_DEFS`. */
+  defs: readonly { id: T; num: string; label: string }[];
+  value: T;
+  onChange: (id: T) => void;
 }
 
-/** 2×3 grid of layout tiles. */
-export function VariantPicker({ value, onChange }: VariantPickerProps) {
+/** 2×3 grid of layout tiles, shared by both studios. */
+export function VariantPicker<T extends string>({
+  defs,
+  value,
+  onChange,
+}: VariantPickerProps<T>) {
   return (
     <div className="grid grid-cols-2 gap-2">
-      {VARIANT_DEFS.map((v) => {
+      {defs.map((v) => {
         const active = value === v.id;
         return (
           <button

@@ -2,39 +2,41 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  DEFAULT_STATE,
-  loadImages,
-  loadState,
-  saveImages,
-  saveState,
-  type EditorState,
-} from "@/lib/state";
+  DEFAULT_CASE_STATE,
+  loadCaseImage,
+  loadCaseState,
+  saveCaseImage,
+  saveCaseState,
+  type CaseEditorState,
+} from "@/lib/case-state";
+import type { CaseCopy } from "@/lib/case-presets";
 import { exportStage, type ExportFormat } from "@/lib/export";
-import { VARIANT_COMPONENTS } from "@/components/variants";
-import { Sidebar } from "@/components/editor/Sidebar";
+import { CASE_COMPONENTS } from "@/components/cases";
+import { CaseSidebar } from "@/components/editor/CaseSidebar";
 import { StageChrome } from "@/components/editor/StageChrome";
 import { StagePreview } from "@/components/editor/StagePreview";
 
+// Same Upwork Project Catalog stage as the mobile studio — both export at 2×.
 const STAGE_W = 1000;
 const STAGE_H = 750;
 
-export default function Home() {
+export default function CaseStudies() {
   // Start from defaults so server + first client paint match, then hydrate
   // from localStorage after mount.
-  const [state, setState] = useState<EditorState>(DEFAULT_STATE);
+  const [state, setState] = useState<CaseEditorState>(DEFAULT_CASE_STATE);
   const [hydrated, setHydrated] = useState(false);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
 
-  // Copy comes from localStorage synchronously; the images are read from
-  // IndexedDB, so hydration has to await them before the stage is live.
+  // Copy comes from localStorage synchronously; the screenshot is read from
+  // IndexedDB, so hydration has to await it before the stage is live.
   useEffect(() => {
     let alive = true;
     void (async () => {
-      const base = loadState();
-      const images = await loadImages();
+      const base = loadCaseState();
+      const screenshot = await loadCaseImage();
       if (!alive) return;
-      setState({ ...base, ...images });
+      setState({ ...base, screenshot });
       setHydrated(true);
     })();
     return () => {
@@ -45,25 +47,22 @@ export default function Home() {
   // Auto-save on every change (only once hydrated, so we never clobber stored
   // state with the initial defaults).
   useEffect(() => {
-    if (hydrated) saveState(state);
+    if (hydrated) saveCaseState(state);
   }, [state, hydrated]);
 
   useEffect(() => {
-    if (hydrated) void saveImages(state.portrait, state.screens);
-  }, [state.portrait, state.screens, hydrated]);
+    if (hydrated) void saveCaseImage(state.screenshot);
+  }, [state.screenshot, hydrated]);
 
   const set = useCallback(
-    <K extends keyof EditorState>(key: K, value: EditorState[K]) => {
+    <K extends keyof CaseEditorState>(key: K, value: CaseEditorState[K]) => {
       setState((s) => ({ ...s, [key]: value }));
     },
     [],
   );
 
-  const setScreen = useCallback((index: number, value: string | null) => {
-    setState((s) => ({
-      ...s,
-      screens: s.screens.map((x, i) => (i === index ? value : x)) as EditorState["screens"],
-    }));
+  const applyPreset = useCallback((copy: CaseCopy) => {
+    setState((s) => ({ ...s, ...copy }));
   }, []);
 
   const onExport = useCallback(
@@ -75,7 +74,7 @@ export default function Home() {
         await exportStage({
           node,
           format,
-          title: state.title,
+          title: `${state.product} ${state.headline}`,
           variant: state.variant,
         });
       } catch (err) {
@@ -87,18 +86,18 @@ export default function Home() {
         setExporting(false);
       }
     },
-    [exporting, state.title, state.variant],
+    [exporting, state.product, state.headline, state.variant],
   );
 
-  const VariantComponent = VARIANT_COMPONENTS[state.variant];
+  const CaseComponent = CASE_COMPONENTS[state.variant];
 
   return (
     <div className="editor">
-      <Sidebar
+      <CaseSidebar
         state={state}
         set={set}
-        setScreen={setScreen}
-        onResetAll={() => setState(DEFAULT_STATE)}
+        onApplyPreset={applyPreset}
+        onResetAll={() => setState(DEFAULT_CASE_STATE)}
       />
 
       <main className="stage-wrap">
@@ -109,11 +108,11 @@ export default function Home() {
         />
 
         <StagePreview exportRef={exportRef} width={STAGE_W} height={STAGE_H}>
-          <VariantComponent {...state} />
+          <CaseComponent {...state} />
         </StagePreview>
 
         <footer className="relative z-[2] border-t border-line bg-[rgba(15,15,16,0.6)] px-7 py-3 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-fg-50 backdrop-blur-md">
-          Drop images in the sidebar slots ·{" "}
+          Drop a web screenshot in the sidebar slot ·{" "}
           {hydrated ? "Auto-saved to your browser" : "Loading…"}
         </footer>
       </main>

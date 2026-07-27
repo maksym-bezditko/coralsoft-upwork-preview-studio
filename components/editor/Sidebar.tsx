@@ -1,6 +1,7 @@
-import type { EditorState, VariantId } from "@/lib/state";
+import { VARIANT_DEFS, type EditorState, type VariantId } from "@/lib/state";
 import { asset } from "@/lib/basePath";
 import { SectionHeader } from "./SectionHeader";
+import { ModeSwitch } from "./ModeSwitch";
 import { VariantPicker } from "./VariantPicker";
 import { CopyFields } from "./CopyFields";
 import { Colors } from "./Colors";
@@ -35,8 +36,13 @@ export function Sidebar({ state, set, setScreen, onResetAll }: SidebarProps) {
       </header>
 
       <section className="border-b border-line px-6 py-5">
+        <ModeSwitch active="upwork" />
+      </section>
+
+      <section className="border-b border-line px-6 py-5">
         <SectionHeader>Layout</SectionHeader>
         <VariantPicker
+          defs={VARIANT_DEFS}
           value={state.variant}
           onChange={(id: VariantId) => set("variant", id)}
         />

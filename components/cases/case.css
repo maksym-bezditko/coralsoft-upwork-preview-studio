@@ -1,0 +1,312 @@
+/* ============================================================
+   Coralsoft — web case-study cover stylesheet (.cse .c1..c5)
+   Compositions ported from the Claude Design project (case-preview.jsx +
+   case-preview-variants.jsx), re-laid out from the prototype's 1200 × 675
+   (16:9) onto the 1000 × 750 (4:3) Upwork Project Catalog stage the mobile
+   previews use — same output size for both studios. The brand hexes baked
+   into the prototype are routed through --pri / --sec (with color-mix
+   derivations) so the editor's color pickers retint every layout, exactly
+   like variant.css does for the mobile stage.
+   ============================================================ */
+/* ---------- shared canvas + slot ---------- */
+  .cse, .cse * { box-sizing: border-box; }
+
+  .cse {
+    width: 1000px; height: 750px;
+    position: relative; overflow: hidden;
+    isolation: isolate;
+    font-family: var(--font-display), "Outfit", system-ui, sans-serif;
+    font-weight: 400;
+    color: #fff;
+    --pri: #FE744D;
+    --sec: #0F0F10;
+    --light: #F6F4EE;
+    --panel: #2A2A30;
+  }
+  .cse img.logo { display: block; height: 24px; width: auto; }
+
+  .cse .slot {
+    position: absolute; inset: 0;
+    /* The image + its position are set inline by ImageSlot, not via custom
+       properties — Chrome drops custom property values over ~2MB. */
+    background-color: var(--slot-bg, #161616);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    color: var(--slot-fg, rgba(255,255,255,0.35));
+    font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+  }
+  .cse .slot .hint { padding: 12px; pointer-events: none; }
+
+  /* ---------- shared chrome (each layout repositions these) ---------- */
+  .cse .top {
+    position: absolute; top: 36px; left: 44px; right: 44px; z-index: 4;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cse .kicker {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+  .cse .kicker .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--pri);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--pri) 18%, transparent);
+  }
+
+  .cse .plabel {
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+    font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--pri);
+    display: flex; align-items: baseline; gap: 9px;
+  }
+  .cse .plabel .dom {
+    color: rgba(255,255,255,0.35); letter-spacing: 0.09em;
+    text-transform: none; font-size: 9.5px;
+  }
+  .cse h2.headline {
+    font-size: 32px; font-weight: 600; line-height: 1.08; letter-spacing: -0.02em;
+    margin: 13px 0 0; text-wrap: balance;
+  }
+
+  .cse .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cse .chip {
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+    font-size: 9px; letter-spacing: 0.07em; text-transform: uppercase;
+    color: rgba(255,255,255,0.62);
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.04);
+    border-radius: 64px; padding: 5px 10px; line-height: 1.3; white-space: nowrap;
+  }
+  .cse .chip.hot {
+    color: var(--pri);
+    border-color: color-mix(in srgb, var(--pri) 45%, transparent);
+    background: color-mix(in srgb, var(--pri) 10%, transparent);
+  }
+
+  .cse .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cse .stat { display: flex; flex-direction: column; gap: 5px; overflow: hidden; }
+  .cse .stat .num {
+    font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: #fff;
+  }
+  .cse .stat .lbl {
+    font-size: 10.5px; line-height: 1.35; color: rgba(255,255,255,0.55);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* browser mock — the web screenshot frame */
+  .cse .browser {
+    position: relative; border-radius: 14px; overflow: hidden;
+    background: #17171A; border: 1px solid rgba(255,255,255,0.13);
+    box-shadow: 0 40px 80px -28px rgba(0,0,0,0.85);
+    display: flex; flex-direction: column;
+  }
+  .cse .browser .bar {
+    height: 32px; flex: 0 0 32px; display: flex; align-items: center; gap: 6px;
+    padding: 0 13px; background: #1E1E22; border-bottom: 1px solid rgba(255,255,255,0.09);
+  }
+  .cse .browser .bar i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.18); display: block; }
+  .cse .browser .bar .url {
+    margin-left: 9px; flex: 1; height: 17px; border-radius: 64px;
+    background: rgba(255,255,255,0.06); display: flex; align-items: center; padding: 0 9px;
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+    font-size: 8.5px; letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.42); overflow: hidden; white-space: nowrap;
+  }
+  .cse .browser .view { position: relative; flex: 1; background: #f4f4f4; }
+  .cse .browser .slot { --slot-bg: #f4f4f4; --slot-fg: #6f6f6f; }
+
+  /* ---------- dark editorial canvas — shared by C1 / C3 / C4 ---------- */
+  .cse.c1, .cse.c3, .cse.c4 { background: var(--sec); }
+  .cse.c1::before, .cse.c3::before, .cse.c4::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 14% 18%, rgba(255,255,255,0.06) 0%, transparent 44%),
+      radial-gradient(circle at 82% 76%, color-mix(in srgb, var(--pri) 10%, transparent) 0%, transparent 46%);
+  }
+  .cse.c1::after, .cse.c3::after, .cse.c4::after {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .6;
+    background-image: radial-gradient(rgba(255,255,255,0.07) 1px, transparent 1.2px);
+    background-size: 32px 32px;
+    mask-image: radial-gradient(ellipse 70% 70% at 46% 44%, #000 28%, transparent 82%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 70% at 46% 44%, #000 28%, transparent 82%);
+  }
+  /* Every direct child positions itself absolutely, so this only needs to lift
+     them above the ::before / ::after canvas texture — adding `position` here
+     would collide with the shared `.cse .top` rule at equal specificity. */
+  .cse.c1 > *, .cse.c3 > *, .cse.c4 > * { z-index: 1; }
+
+  /* ============================================================
+     C1 — Dark editorial (master). Copy left, browser right, stat strip under.
+     ============================================================ */
+  .cse.c1 .main {
+    position: absolute; left: 44px; right: 44px; top: 90px; height: 486px;
+    display: grid; grid-template-columns: 316px 1fr; gap: 34px;
+  }
+  .cse.c1 .left {
+    display: flex; flex-direction: column; justify-content: space-between; padding-top: 2px;
+  }
+  .cse.c1 .vis { position: relative; }
+  .cse.c1 .vis .browser { position: absolute; inset: 0; }
+  .cse.c1 .stats { position: absolute; left: 44px; right: 44px; bottom: 38px; }
+  .cse.c1 .stat {
+    border: 1px solid rgba(255,255,255,0.10); background: rgba(22,22,24,0.72);
+    backdrop-filter: blur(10px); border-radius: 14px; padding: 14px 16px;
+  }
+
+  /* ============================================================
+     C2 — Light premium. Warm off-white canvas, browser bleeding off-frame right.
+     ============================================================ */
+  .cse.c2 { background: var(--light); color: var(--sec); }
+  .cse.c2::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(19,19,21,0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(19,19,21,0.045) 1px, transparent 1px);
+    background-size: 42px 42px;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 72%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 72%);
+  }
+  .cse.c2 > * { z-index: 1; }
+  .cse.c2 .kicker { color: #6B6B70; }
+  .cse.c2 .body { position: absolute; left: 44px; top: 104px; width: 384px; }
+  .cse.c2 .plabel { display: block; }
+  .cse.c2 .plabel .dom {
+    display: block; margin-top: 5px; color: #97979C;
+    letter-spacing: 0.08em; text-transform: none; font-size: 9.5px;
+  }
+  .cse.c2 h2.headline { font-size: 31px; margin: 16px 0 20px; }
+  .cse.c2 .chip { color: #3B3B3F; border-color: #DCD8CD; background: #FFFDF8; }
+  .cse.c2 .chip.hot {
+    color: var(--pri);
+    border-color: color-mix(in srgb, var(--pri) 38%, #fff);
+    background: color-mix(in srgb, var(--pri) 9%, #fff);
+  }
+  .cse.c2 .stats {
+    position: absolute; left: 44px; bottom: 42px; width: 384px;
+    gap: 0; border-top: 1.5px solid var(--sec);
+  }
+  .cse.c2 .stat { padding: 13px 12px 0 0; gap: 0; }
+  .cse.c2 .stat .num { display: block; font-size: 23px; color: var(--sec); }
+  .cse.c2 .stat .lbl { -webkit-line-clamp: 3; margin-top: 5px; font-size: 9.5px; color: #6B6B70; }
+  .cse.c2 .vis { position: absolute; right: -44px; top: 96px; width: 552px; height: 496px; }
+  .cse.c2 .vis .browser {
+    position: absolute; inset: 0;
+    border-radius: 16px 0 0 16px; background: #fff;
+    border: 1px solid #DCD8CD; border-right: 0;
+    box-shadow: -30px 40px 90px -40px rgba(19,19,21,0.4);
+  }
+  .cse.c2 .browser .bar { background: #EFEDE6; border-bottom: 1px solid #DCD8CD; }
+  .cse.c2 .browser .bar i { background: #CFCABC; }
+  .cse.c2 .browser .bar .url { background: #FBFAF6; color: #97979C; }
+  .cse.c2 .browser .view { background: #EAE7DE; }
+  .cse.c2 .browser .slot { --slot-bg: #EAE7DE; --slot-fg: #5F5F64; }
+
+  /* ============================================================
+     C3 — Stat hero. Numbers forward: oversized figures along the bottom rule.
+     ============================================================ */
+  .cse.c3 .hero { position: absolute; left: 44px; top: 96px; width: 470px; }
+  .cse.c3 .hero h2.headline { font-size: 30px; margin-top: 11px; }
+  .cse.c3 .chips { position: absolute; left: 44px; top: 244px; width: 470px; }
+  .cse.c3 .rule {
+    position: absolute; left: 44px; right: 44px; bottom: 185px;
+    height: 1px; background: rgba(255,255,255,0.12);
+  }
+  .cse.c3 .stats {
+    position: absolute; left: 44px; right: 44px; bottom: 44px;
+    gap: 28px; align-items: end;
+  }
+  .cse.c3 .stat { gap: 0; }
+  .cse.c3 .stat .num {
+    font-size: 48px; letter-spacing: -0.04em; line-height: 0.9; color: var(--pri); display: block;
+  }
+  .cse.c3 .stat .lbl { -webkit-line-clamp: 3; margin-top: 9px; font-size: 10px; line-height: 1.4; }
+  .cse.c3 .vis {
+    position: absolute; right: 44px; top: 96px; width: 398px; height: 390px;
+    border-radius: 16px; overflow: hidden; background: var(--panel);
+    border: 1px solid rgba(255,255,255,0.13); box-shadow: 0 40px 80px -30px rgba(0,0,0,0.85);
+  }
+  .cse.c3 .vis .slot { --slot-bg: var(--panel); --slot-fg: rgba(255,255,255,0.72); }
+
+  /* ============================================================
+     C4 — Editorial poster. Numeral + summary left, tinted panel right.
+     ============================================================ */
+  .cse.c4 .top { right: 396px; }
+  /* Centred rather than top-anchored: at 4:3 the copy block is much shorter
+     than the column, and anchoring it to the top strands ~400px of dead space
+     above the bottom-anchored chips. */
+  .cse.c4 .left {
+    position: absolute; left: 46px; top: 50%; transform: translateY(-50%); width: 542px;
+  }
+  .cse.c4 .numeral {
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+    font-size: 11.5px; letter-spacing: 0.18em; color: rgba(255,255,255,0.34);
+  }
+  .cse.c4 h2.headline { font-size: 36px; line-height: 1.04; margin-top: 15px; }
+  .cse.c4 .summary {
+    margin: 18px 0 0; font-size: 13px; font-weight: 300; line-height: 1.55;
+    color: rgba(255,255,255,0.56);
+    display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .cse.c4 .chips { position: absolute; left: 46px; bottom: 44px; width: 542px; }
+  .cse.c4 .panel {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 352px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--pri) 14%, transparent) 0%, rgba(24,24,26,0.5) 100%);
+    border-left: 1px solid rgba(255,255,255,0.10);
+    display: flex; flex-direction: column; justify-content: center; gap: 26px;
+    padding: 42px 34px; overflow: hidden;
+  }
+  .cse.c4 .vis {
+    position: relative; flex: 0 0 186px; border-radius: 12px; overflow: hidden;
+    background: var(--panel); border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: 0 30px 60px -24px rgba(0,0,0,0.8);
+  }
+  .cse.c4 .vis .slot { --slot-bg: var(--panel); --slot-fg: rgba(255,255,255,0.72); }
+  .cse.c4 .stats {
+    position: relative; display: flex; flex-direction: column; gap: 13px;
+  }
+  .cse.c4 .stat { border-top: 1px solid rgba(255,255,255,0.18); padding-top: 10px; gap: 0; }
+  .cse.c4 .stat .num { font-size: 23px; display: block; }
+  .cse.c4 .stat .lbl { margin-top: 4px; font-size: 10px; color: rgba(255,255,255,0.52); }
+
+  /* ============================================================
+     C5 — Coral split. Primary-color canvas, angled dark panel, tall screen.
+     ============================================================ */
+  .cse.c5 { background: var(--pri); }
+  .cse.c5::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1.2px);
+    background-size: 28px 28px; opacity: .5;
+  }
+  .cse.c5 > * { z-index: 2; }
+  .cse.c5 .dark-panel {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 532px; z-index: 1;
+    background: var(--sec);
+    clip-path: polygon(84px 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .cse.c5 .kicker { color: rgba(255,255,255,0.55); }
+  .cse.c5 .left { position: absolute; left: 44px; top: 106px; width: 372px; }
+  .cse.c5 .plabel { display: block; color: rgba(255,255,255,0.85); }
+  .cse.c5 .plabel .dom {
+    display: block; margin-top: 5px; font-size: 9.5px;
+    letter-spacing: 0.08em; text-transform: none; color: rgba(255,255,255,0.62);
+  }
+  .cse.c5 h2.headline { font-size: 31px; line-height: 1.06; margin: 16px 0 0; }
+  .cse.c5 .chips { position: absolute; left: 44px; bottom: 176px; width: 372px; }
+  .cse.c5 .chip { color: #fff; border-color: rgba(255,255,255,0.42); background: rgba(255,255,255,0.14); }
+  .cse.c5 .stats { position: absolute; left: 44px; bottom: 44px; width: 372px; gap: 10px; }
+  .cse.c5 .stat {
+    border-top: 1.5px solid rgba(255,255,255,0.45); padding-top: 10px; padding-right: 6px; gap: 0;
+  }
+  .cse.c5 .stat .num { display: block; font-size: 22px; }
+  .cse.c5 .stat .lbl { -webkit-line-clamp: 3; margin-top: 4px; font-size: 9.5px; color: rgba(255,255,255,0.78); }
+  .cse.c5 .vis {
+    position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
+    width: 412px; height: 452px; border-radius: 18px; overflow: hidden;
+    background: var(--panel); border: 1px solid rgba(255,255,255,0.16);
+    box-shadow: 0 40px 90px -30px rgba(0,0,0,0.7); z-index: 3;
+  }
+  .cse.c5 .vis .slot { --slot-bg: var(--panel); --slot-fg: rgba(255,255,255,0.72); }

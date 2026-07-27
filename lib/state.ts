@@ -1,3 +1,5 @@
+import { IMAGE_KEYS, getImage, putImage } from "./image-store";
+
 export type VariantId = "v1" | "v2" | "v3" | "v4" | "v5" | "v6";
 
 export interface EditorState {
@@ -63,8 +65,10 @@ export const SECONDARY_SWATCHES = [
 ];
 
 /**
- * Read persisted state from localStorage, merged over the defaults.
- * Returns DEFAULT_STATE on the server or when nothing valid is stored.
+ * Read persisted copy/layout state from localStorage, merged over the defaults.
+ * Image slots come back null — they live in IndexedDB, so hydrate them with
+ * {@link loadImages}. Returns DEFAULT_STATE on the server or when nothing
+ * valid is stored.
  */
 export function loadState(): EditorState {
   if (typeof window === "undefined") return DEFAULT_STATE;
@@ -72,20 +76,50 @@ export function loadState(): EditorState {
     const raw = window.localStorage.getItem(LS_KEY);
     if (!raw) return DEFAULT_STATE;
     const parsed = JSON.parse(raw) as Partial<EditorState>;
-    return { ...DEFAULT_STATE, ...parsed };
+    return { ...DEFAULT_STATE, ...parsed, portrait: null, screens: [null, null, null] };
   } catch {
     return DEFAULT_STATE;
   }
 }
 
-/** Persist the full editor state. Silently ignores quota / serialization errors. */
+/**
+ * Persist copy/layout to localStorage. Images are deliberately excluded: they
+ * are kept at full resolution now, so a single one can exceed the whole
+ * localStorage quota. {@link saveImages} routes them to IndexedDB instead.
+ */
 export function saveState(state: EditorState): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(LS_KEY, JSON.stringify(state));
+    const persisted: Partial<EditorState> = { ...state };
+    delete persisted.portrait;
+    delete persisted.screens;
+    window.localStorage.setItem(LS_KEY, JSON.stringify(persisted));
   } catch {
-    /* quota exceeded or storage unavailable — non-fatal */
+    /* storage unavailable — non-fatal */
   }
+}
+
+/** Hydrate the image slots from IndexedDB. */
+export async function loadImages(): Promise<Pick<EditorState, "portrait" | "screens">> {
+  const [portrait, ...screens] = await Promise.all([
+    getImage(IMAGE_KEYS.portrait),
+    ...IMAGE_KEYS.screens.map(getImage),
+  ]);
+  return {
+    portrait,
+    screens: [screens[0], screens[1], screens[2]],
+  };
+}
+
+/** Mirror the image slots to IndexedDB. Unchanged slots are skipped. */
+export async function saveImages(
+  portrait: EditorState["portrait"],
+  screens: EditorState["screens"],
+): Promise<void> {
+  await Promise.all([
+    putImage(IMAGE_KEYS.portrait, portrait),
+    ...IMAGE_KEYS.screens.map((key, i) => putImage(key, screens[i])),
+  ]);
 }
 
 /** Read a File into a data URL (used by the drop zones). */

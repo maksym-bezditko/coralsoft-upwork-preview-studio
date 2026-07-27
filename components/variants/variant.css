@@ -24,8 +24,12 @@
 
   .uwe .slot {
     position: absolute; inset: 0;
-    background: var(--slot-bg, #161616) center/cover no-repeat;
-    background-image: var(--slot-img, none);
+    /* The image + its position are set inline by ImageSlot, not via custom
+       properties — Chrome drops custom property values over ~2MB. */
+    background-color: var(--slot-bg, #161616);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     display: flex; align-items: center; justify-content: center;
     text-align: center;
     color: var(--slot-fg, rgba(255,255,255,0.35));

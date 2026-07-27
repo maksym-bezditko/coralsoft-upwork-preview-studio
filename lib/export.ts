@@ -1,5 +1,4 @@
 import { toJpeg, toPng } from "html-to-image";
-import type { VariantId } from "./state";
 
 export type ExportFormat = "png" | "jpeg";
 
@@ -18,15 +17,20 @@ interface ExportArgs {
   node: HTMLElement;
   format: ExportFormat;
   title: string;
-  variant: VariantId;
+  /** Layout id, appended to the filename (e.g. "v1", "c3"). */
+  variant: string;
 }
 
 /**
- * Render the 1000×750 stage node to a downloadable image.
+ * Render the native-size stage node to a downloadable image.
  *
  * The on-screen stage is scaled with CSS transforms for display, but the
  * capture targets the node's native 1000×750 box and upscales 2× via
- * `pixelRatio` for a crisp 2000×1500 export.
+ * `pixelRatio`, so both studios download at 2000×1500.
+ *
+ * PNG is the lossless path and the one to prefer. JPEG is offered for upload
+ * size limits; it runs at q=0.98 so the artifacts stay negligible on the small
+ * mono type these compositions are full of.
  */
 export async function exportStage({
   node,
@@ -34,8 +38,8 @@ export async function exportStage({
   title,
   variant,
 }: ExportArgs): Promise<void> {
-  // The node is a native 1000×750 box; pixelRatio 2 yields a crisp 2000×1500
-  // export. (Setting canvasWidth/Height here too would double-scale to 4000×3000.)
+  // The node is already at native size; pixelRatio 2 yields the crisp 2× export.
+  // (Setting canvasWidth/Height here too would double-scale it again.)
   const baseOptions = {
     pixelRatio: 2,
     cacheBust: true,
@@ -46,7 +50,7 @@ export async function exportStage({
       ? await toJpeg(node, {
           ...baseOptions,
           backgroundColor: "#000",
-          quality: 0.94,
+          quality: 0.98,
         })
       : await toPng(node, baseOptions);
 

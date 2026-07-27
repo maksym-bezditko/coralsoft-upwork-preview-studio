@@ -1,0 +1,45 @@
+import { Logo } from "@/components/variants/Logo";
+import { CASE_TAG_LIMITS } from "@/lib/case-state";
+import { colorVars, type CaseVariantProps } from "./types";
+import { Browser, Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
+
+/** C1 — Dark editorial (master). Copy left, browser mock right, stat strip under. */
+export function C1Master({
+  primary,
+  secondary,
+  product,
+  domain,
+  category,
+  metaLine,
+  headline,
+  urlHint,
+  techTags,
+  stats,
+  screenshot,
+  screenPos,
+  screenHint,
+}: CaseVariantProps) {
+  return (
+    <div className="cse c1" style={colorVars(primary, secondary)}>
+      <div className="top">
+        <Logo />
+        <Kicker category={category} meta={metaLine} />
+      </div>
+      <div className="main">
+        <div className="left">
+          <div>
+            <ProductLabel product={product} domain={domain} />
+            <h2 className="headline">{headline}</h2>
+          </div>
+          <Chips tags={techTags} limit={CASE_TAG_LIMITS.c1} />
+        </div>
+        <div className="vis">
+          <Browser url={urlHint || domain || "coralsoft.io"}>
+            <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
+          </Browser>
+        </div>
+      </div>
+      <Stats stats={stats} />
+    </div>
+  );
+}
