@@ -41,7 +41,7 @@ export function ImageSlot({
     : undefined;
   return (
     <div className={`slot ${extraClass}`.trim()} style={style}>
-      {!src && <span className="hint">{hint}</span>}
+      {!src && hint.trim() && <span className="hint">{hint}</span>}
     </div>
   );
 }

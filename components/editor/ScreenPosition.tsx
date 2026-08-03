@@ -2,6 +2,7 @@
 
 import type { ScreenPos } from "@/lib/case-state";
 import { cn } from "@/lib/cn";
+import { SliderRow } from "./SliderRow";
 
 /** The nine `background-position` anchors, in reading order. */
 const ANCHORS: { x: number; y: number; label: string }[] = [
@@ -15,37 +16,6 @@ const ANCHORS: { x: number; y: number; label: string }[] = [
   { x: 50, y: 100, label: "Bottom" },
   { x: 100, y: 100, label: "Bottom right" },
 ];
-
-interface AxisProps {
-  label: string;
-  hint: string;
-  value: number;
-  onChange: (value: number) => void;
-}
-
-/** One fine-offset slider — for landing between the nine anchors. */
-function Axis({ label, hint, value, onChange }: AxisProps) {
-  return (
-    <label className="flex items-center gap-[10px]">
-      <span className="w-[10px] shrink-0 font-mono text-[10px] text-fg-50">
-        {label}
-      </span>
-      <input
-        type="range"
-        min={0}
-        max={100}
-        step={1}
-        value={value}
-        aria-label={hint}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="h-[4px] flex-1 cursor-pointer accent-pri"
-      />
-      <span className="w-[34px] shrink-0 text-right font-mono text-[10px] text-fg-70">
-        {value}%
-      </span>
-    </label>
-  );
-}
 
 interface ScreenPositionProps {
   value: ScreenPos;
@@ -92,16 +62,24 @@ export function ScreenPosition({ value, onChange }: ScreenPositionProps) {
       </div>
 
       <div className="flex flex-1 flex-col justify-center gap-[10px]">
-        <Axis
+        <SliderRow
           label="X"
-          hint="Horizontal screenshot position"
+          ariaLabel="Horizontal screenshot position"
           value={value.x}
+          min={0}
+          max={100}
+          step={1}
+          format={(v) => `${v}%`}
           onChange={(x) => onChange({ ...value, x })}
         />
-        <Axis
+        <SliderRow
           label="Y"
-          hint="Vertical screenshot position"
+          ariaLabel="Vertical screenshot position"
           value={value.y}
+          min={0}
+          max={100}
+          step={1}
+          format={(v) => `${v}%`}
           onChange={(y) => onChange({ ...value, y })}
         />
         <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-fg-50">

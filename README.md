@@ -58,10 +58,10 @@ If the first run can't auto-enable Pages, set **Settings → Pages → Source** 
   fixed native-size frame that is scaled (display only) to fit the viewport.
 - Export captures the **native-size** `#export-stage` node with `html-to-image`
   at `pixelRatio: 2`, so the download is 2× regardless of on-screen scale.
-- Each variant pipes the editor colors into CSS custom properties
-  (`--pri` / `--sec`); the shared `variant.css` / `case.css` reference those vars
-  (with `color-mix(...)` derivations) so the color pickers retint the whole
-  composition.
+- Each variant pipes the editor colors into CSS custom properties — `--pri` /
+  `--sec` for the mobile stage, five tokens for the case stage (see *Colour*
+  below). The shared `variant.css` / `case.css` reference those vars, with
+  `color-mix(...)` derivations, so the pickers retint the whole composition.
 
 ## Image quality
 
@@ -81,13 +81,12 @@ Two browser ceilings had to be routed around to make that work:
   `ImageSlot` now sets `background-image` / `background-position` inline
   instead; those have no such limit (verified painting a 18.6 MB source).
 
-That is possible because images persist to **IndexedDB**, not `localStorage`.
-The old ~5 MB `localStorage` quota was the sole reason the importer used to cap
-the longest edge at 1400px and fall back to JPEG q=0.9 — both visible losses: a
-16:9 screenshot ended up at 1400 × 787 when the C1 browser view needs 1124 × 908
-device pixels at 2× export, so `cover` upscaled it ~15%, and JPEG ringing shows
-badly on the small mono type these layouts are full of. IndexedDB has no such
-ceiling, so the 2× export is now the only place resolution is decided.
+The quota was the sole reason the importer used to cap the longest edge at
+1400px and fall back to JPEG q=0.9 — both visible losses: a 16:9 screenshot
+ended up at 1400 × 787 when the C1 browser view needs 1124 × 908 device pixels
+at 2× export, so `cover` upscaled it ~15%, and JPEG ringing shows badly on the
+small mono type these layouts are full of. With both ceilings gone, the 2×
+export is the only place resolution is decided.
 
 ## Mobile app layouts (`/`)
 
@@ -109,11 +108,14 @@ platform screenshot**; C1/C2 frame it in a browser mock.
 
 | ID | Name | Notes |
 |----|------|-------|
-| c1 | Dark editorial | Master: copy left, browser mock right, 3 stat cards under |
-| c2 | Light premium | Warm off-white canvas, browser bleeding off the right edge |
+| c1 | Editorial | Master: copy left, browser mock right, 3 stat cards under |
+| c2 | Bleed premium | Browser bleeding off the right edge, stats on a heavy rule |
 | c3 | Stat hero | Numbers forward — oversized figures along a bottom rule |
-| c4 | Editorial poster | Numeral + summary left, tinted panel right (screenshot over stat list) |
-| c5 | Coral split | Primary-color canvas, angled dark panel, tall screen right |
+| c4 | Poster | Numeral + summary left, tinted panel right (screenshot over stat list) |
+| c5 | Accent split | Accent-color canvas, angled panel, tall screen right |
+
+Layout names describe the **composition, not a palette** — no template carries a
+fixed colour scheme (see below).
 
 Everything on the cover is editable: product, domain, category, meta line,
 headline, summary, numeral, address bar, screenshot placeholder, the tech chips
@@ -123,14 +125,60 @@ production case studies in `lib/case-presets.ts`, keeping the layout, colors and
 dropped screenshot. Chip capacity differs per layout (`CASE_TAG_LIMITS`) — rows
 the current layout can't fit stay editable but are dimmed.
 
+### Removing elements
+
+**Clearing a field removes that element from the cover.** There is no separate
+set of visibility toggles — an empty value is the off switch. The **headline**
+and the **screenshot slot** are the only two that always render; everything else
+(product, domain, category, meta line, summary, numeral, address bar, screenshot
+placeholder, every chip, every stat) can be emptied away.
+
+Each block drops its own wrapper rather than just its text, which is the part
+that actually matters: an empty `.chips` would still hold a flex row, an empty
+`.stats` would still draw C2's 2px rule and C5's cell borders, a `.kicker` with
+no text would leave its accent dot floating in the header, and C3's rule would
+underline nothing. Composite lines are assembled from whatever survives, so
+clearing one part never leaves a dangling `·` or `—` separator. A product label
+with no product promotes the domain and drops the gap above it (`.dom.solo`).
+
+Partial removal works the same way: a blank chip row or a stat with no number
+and no caption is skipped rather than rendered as an empty pill or card.
+
+### Colour
+
+Five colours drive every composition, all set in the sidebar: **background**,
+**accent**, **headline + numbers**, **skills** and **other text**. They arrive as
+`--bg` / `--pri` / `--head` / `--chip` / `--text`, and `case.css` derives every
+border, card surface, chip fill, browser chrome tint and screenshot backing from
+them with `color-mix()`. Nothing is hardcoded, so the same layout reads correctly
+on a white, coral or dark canvas — set the background dark and the hairlines,
+surfaces and wordmark all follow. The Coralsoft wordmark picks its white or
+orange variant from the canvas's relative luminance.
+
+C5 is the exception worth knowing: its canvas *is* the accent colour, so the
+roles invert there — the product label and accent chips borrow the background
+colour instead, since accent-on-accent would be invisible.
+
+### Text size
+
+The same five roles have a size control — **headline**, **product**, **skills**,
+**numbers** and **body** — as `--fs-*` percentages (60–180%, default 100%) that
+`case.css` multiplies into every `font-size` via `calc()`.
+
+They are multipliers rather than absolute pixel values on purpose: the layouts
+size the same role differently by design (the stat figures are 62px on C3, which
+leads with numbers, and 25px on C5, which doesn't). A percentage moves a role
+across every layout while keeping those relationships intact. The browser mock's
+address bar is deliberately excluded — it is window chrome, not cover copy.
+
 ### Positioning long screenshots
 
 Slots render the screenshot with `cover`, so a capture whose aspect ratio differs
 from the slot overflows on one axis — a full-page marketing screenshot overflows
 vertically by a lot. The **Screenshot** section's position control picks which
 slice shows: nine anchors (top left → bottom right) for the common cases, plus X
-/ Y sliders to land anywhere between them. It maps to `background-position` via
-the `--slot-pos` custom property that `ImageSlot` sets.
+/ Y sliders to land anywhere between them. It maps to the `background-position`
+that `ImageSlot` sets inline.
 
 ## Component tree
 
@@ -158,9 +206,12 @@ components/editor/            # the left rail + stage chrome (shared by both stu
   CaseSidebar.tsx             # case-study rail
   CasePresetPicker.tsx        #   one-click fill from the 6 production cases
   CaseCopyFields.tsx          #   every text line on the cover
+  CaseColors.tsx              #   background / accent / headline / skills / text
+  CaseFontSizes.tsx           #   per-role type scale sliders
   TagsField.tsx               #   editable tech chips + accent toggles
   StatsFields.tsx             #   editable result numbers + captions
   ScreenPosition.tsx          #   9-anchor + slider control for the screenshot slot
+  SliderRow.tsx               # labelled range input + readout (shared)
 
 components/variants/          # the 6 self-contained 1000×750 mobile compositions
   V1Dark / V2Light / V3Poster / V4Coral / V5Terminal / V6Split.tsx
@@ -172,10 +223,10 @@ components/variants/          # the 6 self-contained 1000×750 mobile compositio
 
 components/cases/             # the 5 self-contained 1000×750 case-study covers
   C1Master / C2Light / C3Stat / C4Poster / C5Coral.tsx
-  CaseParts.tsx               # Kicker / ProductLabel / Chips / Stats / ScreenSlot / Browser
+  CaseParts.tsx               # CaseLogo / Kicker / ProductLabel / Chips / Stats / ScreenSlot
   types.ts                    # CaseVariantProps
   index.tsx                   # case id → component registry; imports case.css
-  case.css                    # shared stylesheet (.cse .c1..c5) — re-laid out for 4:3
+  case.css                    # shared stylesheet (.cse .c1..c5) — colour-token driven
 
 components/ui/                # shadcn-style primitives (button, input, textarea, dialog)
 

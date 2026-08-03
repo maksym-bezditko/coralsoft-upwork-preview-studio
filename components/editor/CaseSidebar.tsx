@@ -13,7 +13,8 @@ import { CasePresetPicker } from "./CasePresetPicker";
 import { CaseCopyFields } from "./CaseCopyFields";
 import { TagsField } from "./TagsField";
 import { StatsFields } from "./StatsFields";
-import { Colors } from "./Colors";
+import { CaseColors } from "./CaseColors";
+import { CaseFontSizes } from "./CaseFontSizes";
 import { DropZone } from "./DropZone";
 import { ScreenPosition } from "./ScreenPosition";
 import { ResetAll } from "./ResetAll";
@@ -92,12 +93,12 @@ export function CaseSidebar({
 
       <section className="border-b border-line px-6 py-5">
         <SectionHeader>Colors</SectionHeader>
-        <Colors
-          primary={state.primary}
-          secondary={state.secondary}
-          onPrimary={(v) => set("primary", v)}
-          onSecondary={(v) => set("secondary", v)}
-        />
+        <CaseColors value={state} onChange={set} />
+      </section>
+
+      <section className="border-b border-line px-6 py-5">
+        <SectionHeader>Text size</SectionHeader>
+        <CaseFontSizes value={state} onChange={set} />
       </section>
 
       <section className="border-b border-line px-6 py-5">

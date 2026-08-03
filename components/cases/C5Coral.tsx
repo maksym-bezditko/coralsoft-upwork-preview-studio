@@ -1,28 +1,30 @@
-import { Logo } from "@/components/variants/Logo";
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
-import { colorVars, type CaseVariantProps } from "./types";
-import { Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
+import { caseStyleVars, type CaseVariantProps } from "./types";
+import { CaseLogo, Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
 
-/** C5 — Coral split. Primary-color canvas, angled dark panel, tall screen right. */
-export function C5Coral({
-  primary,
-  secondary,
-  product,
-  domain,
-  category,
-  metaLine,
-  headline,
-  techTags,
-  stats,
-  screenshot,
-  screenPos,
-  screenHint,
-}: CaseVariantProps) {
+/**
+ * C5 — Accent split. The canvas is the accent colour and the angled panel is
+ * the background colour, so the two swap roles here. The wordmark sits on the
+ * accent side, so the wordmark picks its variant from the accent colour.
+ */
+export function C5Coral(props: CaseVariantProps) {
+  const {
+    product,
+    domain,
+    category,
+    metaLine,
+    headline,
+    techTags,
+    stats,
+    screenshot,
+    screenPos,
+    screenHint,
+  } = props;
   return (
-    <div className="cse c5" style={colorVars(primary, secondary)}>
-      <div className="dark-panel" />
+    <div className="cse c5" style={caseStyleVars(props)}>
+      <div className="split" />
       <div className="top">
-        <Logo />
+        <CaseLogo on={props.primary} />
         <Kicker category={category} meta={metaLine} />
       </div>
       <div className="left">

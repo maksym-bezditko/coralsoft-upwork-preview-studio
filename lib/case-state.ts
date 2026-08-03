@@ -25,10 +25,44 @@ export interface CaseStat {
   lbl: string;
 }
 
-export interface CaseEditorState {
+/**
+ * Every colour on the cover is user-controlled. The compositions hold no fixed
+ * palette of their own — `case.css` derives borders, card surfaces and the
+ * screenshot backing from these five via `color-mix`, so a layout reads
+ * correctly on a white, coral or dark canvas alike.
+ */
+export interface CaseColors {
+  background: string; // canvas
+  primary: string; // accent — product label, accent chips, kicker dot
+  headlineColor: string; // the h2 + stat numbers
+  chipColor: string; // tech / skills chips
+  textColor: string; // domain, meta line, stat captions
+}
+
+/**
+ * Per-role type scale, as a percentage of each layout's tuned size.
+ *
+ * Deliberately a multiplier rather than an absolute px value: the compositions
+ * size the same role differently on purpose (the stat figures are 62px on C3
+ * and 25px on C5, because one layout leads with numbers and the other doesn't).
+ * A percentage keeps that balance intact while still letting every role be
+ * dialled up or down.
+ */
+export interface CaseFontScales {
+  headlineScale: number; // the h2
+  labelScale: number; // product name + domain
+  chipScale: number; // tech / skills chips
+  numberScale: number; // stat figures
+  textScale: number; // meta line, stat captions, summary, numeral
+}
+
+/** Slider bounds, in percent. */
+export const FONT_SCALE_MIN = 60;
+export const FONT_SCALE_MAX = 180;
+export const FONT_SCALE_STEP = 5;
+
+export interface CaseEditorState extends CaseColors, CaseFontScales {
   variant: CaseVariantId;
-  primary: string; // hex, default '#FE744D'
-  secondary: string; // hex, default '#0F0F10'
   product: string;
   domain: string;
   category: string; // leads the kicker line, e.g. "B2B SaaS"
@@ -63,10 +97,38 @@ export const MAX_STATS = 3;
 /** localStorage key — bump the suffix to invalidate persisted state. */
 export const CASE_LS_KEY = "coralsoft-case-editor-v1";
 
+/** Bright canvases — white, warm paper, blush, coral, mint, sky. */
+export const CASE_BACKGROUND_SWATCHES = [
+  "#FFFFFF",
+  "#F6F4EE",
+  "#FFF1EB",
+  "#FE744D",
+  "#E8F3EE",
+  "#EBF1FF",
+];
+
+/** Ink options, including white for use on a coral or dark canvas. */
+export const CASE_INK_SWATCHES = [
+  "#12121A",
+  "#3B3B44",
+  "#61616B",
+  "#FFFFFF",
+  "#FE744D",
+  "#1B4D3E",
+];
+
 export const DEFAULT_CASE_STATE: CaseEditorState = {
   variant: "c1",
+  background: "#FFFFFF",
   primary: "#FE744D",
-  secondary: "#0F0F10",
+  headlineColor: "#12121A",
+  chipColor: "#3B3B44",
+  textColor: "#61616B",
+  headlineScale: 100,
+  labelScale: 100,
+  chipScale: 100,
+  numberScale: 100,
+  textScale: 100,
   ...CASE_PRESETS[0].copy,
   screenshot: null,
   screenPos: { x: 50, y: 50 },
@@ -78,12 +140,13 @@ export interface CaseVariantDef {
   label: string;
 }
 
+/** Labels describe the composition, not a palette — the colours are a setting. */
 export const CASE_VARIANT_DEFS: CaseVariantDef[] = [
-  { id: "c1", num: "01", label: "Dark editorial" },
-  { id: "c2", num: "02", label: "Light premium" },
+  { id: "c1", num: "01", label: "Editorial" },
+  { id: "c2", num: "02", label: "Bleed premium" },
   { id: "c3", num: "03", label: "Stat hero" },
-  { id: "c4", num: "04", label: "Editorial poster" },
-  { id: "c5", num: "05", label: "Coral split" },
+  { id: "c4", num: "04", label: "Poster" },
+  { id: "c5", num: "05", label: "Accent split" },
 ];
 
 /**

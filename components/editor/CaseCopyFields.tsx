@@ -11,10 +11,17 @@ interface CaseCopyFieldsProps {
   ) => void;
 }
 
-/** Every text line on the cover. Layout-specific fields are labeled as such. */
+/**
+ * Every text line on the cover. Layout-specific fields are labeled as such.
+ * Clearing a field removes that element from the cover entirely — the headline
+ * is the only one here that always renders.
+ */
 export function CaseCopyFields({ state, onChange }: CaseCopyFieldsProps) {
   return (
     <>
+      <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.14em] text-fg-50">
+        Clear a field to remove it from the cover
+      </p>
       <div className="grid grid-cols-2 gap-2">
         <Field label="Product">
           <Input

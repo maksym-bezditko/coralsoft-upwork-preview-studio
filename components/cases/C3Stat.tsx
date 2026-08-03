@@ -1,27 +1,33 @@
-import { Logo } from "@/components/variants/Logo";
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
-import { colorVars, type CaseVariantProps } from "./types";
-import { Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
+import { caseStyleVars, type CaseVariantProps } from "./types";
+import {
+  CaseLogo,
+  Chips,
+  Kicker,
+  ProductLabel,
+  ScreenSlot,
+  Stats,
+  hasStats,
+} from "./CaseParts";
 
 /** C3 — Stat hero. Numbers forward: oversized figures along the bottom rule. */
-export function C3Stat({
-  primary,
-  secondary,
-  product,
-  domain,
-  category,
-  metaLine,
-  headline,
-  techTags,
-  stats,
-  screenshot,
-  screenPos,
-  screenHint,
-}: CaseVariantProps) {
+export function C3Stat(props: CaseVariantProps) {
+  const {
+    product,
+    domain,
+    category,
+    metaLine,
+    headline,
+    techTags,
+    stats,
+    screenshot,
+    screenPos,
+    screenHint,
+  } = props;
   return (
-    <div className="cse c3" style={colorVars(primary, secondary)}>
+    <div className="cse c3" style={caseStyleVars(props)}>
       <div className="top">
-        <Logo />
+        <CaseLogo on={props.background} />
         <Kicker category={category} meta={metaLine} />
       </div>
       <div className="hero">
@@ -32,7 +38,8 @@ export function C3Stat({
       <div className="vis">
         <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
       </div>
-      <div className="rule" />
+      {/* The rule underlines the figures, so it goes when they do. */}
+      {hasStats(stats) && <div className="rule" />}
       <Stats stats={stats} />
     </div>
   );

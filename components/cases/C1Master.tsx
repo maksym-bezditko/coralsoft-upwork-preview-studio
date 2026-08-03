@@ -1,28 +1,26 @@
-import { Logo } from "@/components/variants/Logo";
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
-import { colorVars, type CaseVariantProps } from "./types";
-import { Browser, Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
+import { caseStyleVars, type CaseVariantProps } from "./types";
+import { Browser, CaseLogo, Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
 
-/** C1 — Dark editorial (master). Copy left, browser mock right, stat strip under. */
-export function C1Master({
-  primary,
-  secondary,
-  product,
-  domain,
-  category,
-  metaLine,
-  headline,
-  urlHint,
-  techTags,
-  stats,
-  screenshot,
-  screenPos,
-  screenHint,
-}: CaseVariantProps) {
+/** C1 — Editorial master. Copy left, browser mock right, stat strip under. */
+export function C1Master(props: CaseVariantProps) {
+  const {
+    product,
+    domain,
+    category,
+    metaLine,
+    headline,
+    urlHint,
+    techTags,
+    stats,
+    screenshot,
+    screenPos,
+    screenHint,
+  } = props;
   return (
-    <div className="cse c1" style={colorVars(primary, secondary)}>
+    <div className="cse c1" style={caseStyleVars(props)}>
       <div className="top">
-        <Logo />
+        <CaseLogo on={props.background} />
         <Kicker category={category} meta={metaLine} />
       </div>
       <div className="main">
@@ -34,7 +32,7 @@ export function C1Master({
           <Chips tags={techTags} limit={CASE_TAG_LIMITS.c1} />
         </div>
         <div className="vis">
-          <Browser url={urlHint || domain || "coralsoft.io"}>
+          <Browser url={urlHint}>
             <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
           </Browser>
         </div>
