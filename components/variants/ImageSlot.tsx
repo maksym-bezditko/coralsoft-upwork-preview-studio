@@ -37,6 +37,10 @@ export function ImageSlot({
     ? ({
         backgroundImage: `url(${src})`,
         backgroundPosition: position,
+        // The slot's backing plate exists to give the empty state a surface.
+        // Behind a filled slot it is invisible for an opaque image but tints
+        // everything a cut-out PNG lets through, so it goes once there is one.
+        backgroundColor: "transparent",
       } as CSSProperties)
     : undefined;
   return (

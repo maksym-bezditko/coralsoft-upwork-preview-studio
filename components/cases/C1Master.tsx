@@ -1,6 +1,7 @@
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
 import { caseStyleVars, type CaseVariantProps } from "./types";
-import { Browser, CaseLogo, Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
+import { DraggableSlot } from "./DraggableSlot";
+import { Browser, CaseLogo, Chips, Kicker, ProductLabel, Stats } from "./CaseParts";
 
 /** C1 — Editorial master. Copy left, browser mock right, stat strip under. */
 export function C1Master(props: CaseVariantProps) {
@@ -33,7 +34,7 @@ export function C1Master(props: CaseVariantProps) {
         </div>
         <div className="vis">
           <Browser url={urlHint}>
-            <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
+            <DraggableSlot src={screenshot} hint={screenHint} pos={screenPos} onPosChange={props.onImagePosChange} />
           </Browser>
         </div>
       </div>

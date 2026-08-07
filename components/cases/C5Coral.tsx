@@ -1,6 +1,7 @@
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
 import { caseStyleVars, type CaseVariantProps } from "./types";
-import { CaseLogo, Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
+import { DraggableSlot } from "./DraggableSlot";
+import { CaseLogo, Chips, Kicker, ProductLabel, Stats } from "./CaseParts";
 
 /**
  * C5 — Accent split. The canvas is the accent colour and the angled panel is
@@ -34,7 +35,7 @@ export function C5Coral(props: CaseVariantProps) {
       <Chips tags={techTags} limit={CASE_TAG_LIMITS.c5} />
       <Stats stats={stats} />
       <div className="vis">
-        <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
+        <DraggableSlot src={screenshot} hint={screenHint} pos={screenPos} onPosChange={props.onImagePosChange} />
       </div>
     </div>
   );

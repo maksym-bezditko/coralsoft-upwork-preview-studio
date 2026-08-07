@@ -57,6 +57,24 @@
   }
   .cse .slot .hint { padding: 12px; pointer-events: none; }
 
+  /* Every image frame is positioned by default. `.slot` is
+     `position: absolute; inset: 0`, so a frame left static would let the image
+     resolve against the canvas instead and paint full-bleed underneath the
+     layout. Per-layout rules override this with `absolute`. */
+  .cse .vis { position: relative; }
+  .cse .slot-wrap { position: absolute; inset: 0; }
+  /* touch-action so a drag reframes the image instead of scrolling the page. */
+  .cse .drag-slot { cursor: grab; touch-action: none; }
+  .cse .drag-slot:active { cursor: grabbing; }
+
+  /* Description — the photo layouts lead with prose where the screenshot
+     family leads with figures. */
+  .cse .summary {
+    margin: 20px 0 0; font-size: calc(16px * var(--fs-text) / 100);
+    font-weight: 300; line-height: 1.55; color: var(--text);
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
   /* ---------- shared chrome (each layout repositions these) ---------- */
   .cse .top {
     position: absolute; top: 36px; left: 44px; right: 44px; z-index: 4;
@@ -175,7 +193,6 @@
     display: flex; flex-direction: column; justify-content: space-between; padding-top: 2px;
   }
   .cse.c1 h2.headline { font-size: calc(45px * var(--fs-head) / 100); }
-  .cse.c1 .vis { position: relative; }
   .cse.c1 .vis .browser { position: absolute; inset: 0; }
   .cse.c1 .stats { position: absolute; left: 44px; right: 44px; bottom: 36px; }
   .cse.c1 .stat {
@@ -317,4 +334,231 @@
   .cse.c5 .stat .lbl {
     -webkit-line-clamp: 3; font-size: calc(11.5px * var(--fs-text) / 100);
     color: color-mix(in srgb, var(--head) 74%, transparent);
+  }
+  /* Must stay positioned: `.slot` is `position: absolute; inset: 0`, so if this
+     frame is ever static the screenshot escapes to the canvas itself and paints
+     full-bleed underneath the split panel. */
+  .cse.c5 .vis {
+    position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
+    width: 404px; height: 448px; border-radius: 18px; overflow: hidden;
+    background: var(--backing); border: 1px solid var(--line);
+    box-shadow: 0 34px 80px -30px color-mix(in srgb, var(--head) 50%, transparent);
+    z-index: 3;
+  }
+
+  /* ============================================================
+     Photo family — P1..P5. The same five compositions as C1..C5 with the
+     product screenshot swapped for a person and the stat block swapped for a
+     description, so they lead with the team rather than the app.
+     ============================================================ */
+  .cse.p1::before, .cse.p3::before, .cse.p4::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at 82% 76%, color-mix(in srgb, var(--pri) 12%, transparent) 0%, transparent 48%);
+  }
+  .cse.p1 > *, .cse.p3 > *, .cse.p4 > * { z-index: 1; }
+
+  /* No frame around the photo — no border, no card shadow, no backing plate.
+     The person sits directly on the canvas; only the corner radius stays, to
+     keep it from fighting the rounded chips and panels around it. */
+  .cse.p1 .vis, .cse.p2 .vis, .cse.p3 .vis, .cse.p4 .vis, .cse.p5 .vis {
+    border-radius: 20px; overflow: hidden;
+  }
+
+  /* ---------- P1 — Editorial · photo ---------- */
+  .cse.p1 .main {
+    position: absolute; left: 44px; right: 44px; top: 96px; bottom: 44px;
+    display: grid; grid-template-columns: 1fr 336px; gap: 36px;
+  }
+  .cse.p1 .left {
+    display: flex; flex-direction: column; justify-content: space-between; padding-top: 2px;
+  }
+  .cse.p1 h2.headline { font-size: calc(44px * var(--fs-head) / 100); }
+  .cse.p1 .vis { position: relative; }
+
+  /* ---------- P2 — Bleed · photo ---------- */
+  .cse.p2::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--pri) 10%, transparent) 0%, transparent 46%);
+  }
+  .cse.p2 > * { z-index: 1; }
+  .cse.p2 .body { position: absolute; left: 44px; top: 104px; width: 452px; }
+  .cse.p2 h2.headline { font-size: calc(42px * var(--fs-head) / 100); }
+  .cse.p2 .summary { -webkit-line-clamp: 5; }
+  .cse.p2 .chips { margin-top: 30px; }
+  .cse.p2 .vis {
+    position: absolute; right: -40px; top: 88px; width: 424px; height: 574px;
+    border-radius: 20px 0 0 20px;
+  }
+
+  /* ---------- P3 — Portrait left ---------- */
+  .cse.p3 .vis { position: absolute; left: 44px; top: 96px; width: 336px; bottom: 44px; }
+  .cse.p3 .body { position: absolute; left: 416px; right: 44px; top: 104px; }
+  .cse.p3 h2.headline { font-size: calc(44px * var(--fs-head) / 100); }
+  .cse.p3 .summary { -webkit-line-clamp: 5; }
+  .cse.p3 .chips { margin-top: 30px; }
+
+  /* ---------- P4 — Poster · photo ---------- */
+  .cse.p4 .top { right: 392px; }
+  .cse.p4 .left {
+    position: absolute; left: 46px; top: 50%; transform: translateY(-50%); width: 512px;
+  }
+  .cse.p4 .numeral {
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+    font-size: calc(14px * var(--fs-text) / 100);
+    font-weight: 500; letter-spacing: 0.14em; color: var(--text);
+  }
+  .cse.p4 h2.headline {
+    font-size: calc(50px * var(--fs-head) / 100); line-height: 1.02; margin-top: 18px;
+  }
+  .cse.p4 .chips { position: absolute; left: 46px; bottom: 44px; width: 512px; }
+  .cse.p4 .panel {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 348px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--pri) 16%, transparent) 0%, var(--surface) 100%);
+    border-left: 1px solid var(--line);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 44px 32px; overflow: hidden;
+  }
+  .cse.p4 .vis { position: relative; flex: 1; }
+
+  /* ---------- P5 — Accent split · photo ---------- */
+  .cse.p5 { background: var(--pri); }
+  .cse.p5::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(color-mix(in srgb, var(--bg) 30%, transparent) 1px, transparent 1.2px);
+    background-size: 28px 28px;
+  }
+  .cse.p5 > * { z-index: 2; }
+  .cse.p5 .split {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 524px; z-index: 1;
+    background: var(--bg);
+    clip-path: polygon(84px 0, 100% 0, 100% 100%, 0 100%);
+  }
+  /* The canvas is the accent colour here, so the accent-tinted bits invert. */
+  .cse.p5 .plabel { color: var(--bg); }
+  .cse.p5 .plabel .dom { color: color-mix(in srgb, var(--head) 66%, transparent); }
+  .cse.p5 .summary { color: color-mix(in srgb, var(--head) 78%, transparent); -webkit-line-clamp: 4; }
+  .cse.p5 .chip {
+    color: var(--head);
+    border-color: color-mix(in srgb, var(--head) 26%, transparent);
+    background: color-mix(in srgb, var(--bg) 30%, transparent);
+  }
+  .cse.p5 .chip.hot { color: var(--pri); background: var(--bg); border-color: var(--bg); }
+  .cse.p5 .left { position: absolute; left: 44px; top: 104px; width: 392px; }
+  .cse.p5 h2.headline { font-size: calc(40px * var(--fs-head) / 100); margin-top: 20px; }
+  .cse.p5 .chips { position: absolute; left: 44px; bottom: 48px; width: 392px; }
+  .cse.p5 .vis {
+    position: absolute; right: 44px; top: 50%; transform: translateY(-50%);
+    width: 404px; height: 528px; z-index: 3;
+  }
+
+  /* ---------- P6 — Accent full · photo ----------
+     No panel: the accent floods the whole canvas and the photo runs full-height
+     off the right edge, so it can be as large as the cover allows. Because
+     there is no background-coloured surface anywhere, every accent-tinted role
+     inverts the way it does on the split layouts. */
+  .cse.p6 { background: var(--pri); }
+  .cse.p6 .plabel { color: var(--bg); }
+  .cse.p6 .plabel .dom { color: color-mix(in srgb, var(--head) 66%, transparent); }
+  .cse.p6 .kicker { color: color-mix(in srgb, var(--head) 72%, transparent); }
+  .cse.p6 .kicker .dot {
+    background: var(--bg);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg) 26%, transparent);
+  }
+  .cse.p6 .summary { color: color-mix(in srgb, var(--head) 78%, transparent); }
+  .cse.p6 .chip {
+    color: var(--head);
+    border-color: color-mix(in srgb, var(--head) 26%, transparent);
+    background: color-mix(in srgb, var(--bg) 30%, transparent);
+  }
+  .cse.p6 .chip.hot { color: var(--pri); background: var(--bg); border-color: var(--bg); }
+  .cse.p6 .stat {
+    border-top: 2px solid color-mix(in srgb, var(--head) 34%, transparent);
+    padding-top: 12px; padding-right: 6px; gap: 4px;
+  }
+  .cse.p6 .stat .num { display: block; font-size: calc(25px * var(--fs-num) / 100); }
+  .cse.p6 .stat .lbl {
+    -webkit-line-clamp: 3; font-size: calc(11.5px * var(--fs-text) / 100);
+    color: color-mix(in srgb, var(--head) 74%, transparent);
+  }
+
+  /* The photo runs to the top edge, so the header stays inside the accent
+     column rather than straddling it. */
+  .cse.p6 .top { right: 552px; }
+  .cse.p6 .left { position: absolute; left: 44px; top: 100px; width: 392px; z-index: 2; }
+  .cse.p6 h2.headline { font-size: calc(40px * var(--fs-head) / 100); margin-top: 18px; }
+  .cse.p6 .summary { -webkit-line-clamp: 3; }
+  .cse.p6 .chips { position: absolute; left: 44px; bottom: 160px; width: 392px; z-index: 2; }
+  .cse.p6 .stats { position: absolute; left: 44px; bottom: 42px; width: 392px; gap: 11px; z-index: 2; }
+  /* Flush to three edges and un-rounded: the photo is part of the canvas here,
+     not an object sitting on it. */
+  .cse.p6 .vis {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 536px;
+    border-radius: 0; overflow: hidden; z-index: 1;
+  }
+
+  /* ---------- P7 — Photo backdrop ----------
+     The photo is the background rather than an object on it: the frame is the
+     whole canvas, so `cover` scales the person as large as the stage allows and
+     the copy overlays it. Same inverted ink as the other accent-canvas layouts,
+     since a cut-out photo leaves the accent showing through. */
+  .cse.p7 { background: var(--pri); }
+  .cse.p7 .plabel { color: var(--bg); }
+  .cse.p7 .plabel .dom { color: color-mix(in srgb, var(--head) 66%, transparent); }
+  .cse.p7 .kicker { color: color-mix(in srgb, var(--head) 72%, transparent); }
+  .cse.p7 .kicker .dot {
+    background: var(--bg);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg) 26%, transparent);
+  }
+  .cse.p7 .summary {
+    color: color-mix(in srgb, var(--head) 78%, transparent); -webkit-line-clamp: 3;
+  }
+  .cse.p7 .chip {
+    color: var(--head);
+    border-color: color-mix(in srgb, var(--head) 26%, transparent);
+    background: color-mix(in srgb, var(--bg) 30%, transparent);
+  }
+  .cse.p7 .chip.hot { color: var(--pri); background: var(--bg); border-color: var(--bg); }
+  .cse.p7 .stat {
+    border-top: 2px solid color-mix(in srgb, var(--head) 34%, transparent);
+    padding-top: 12px; padding-right: 6px; gap: 4px;
+  }
+  .cse.p7 .stat .num { display: block; font-size: calc(25px * var(--fs-num) / 100); }
+  .cse.p7 .stat .lbl {
+    -webkit-line-clamp: 3; font-size: calc(11.5px * var(--fs-text) / 100);
+    color: color-mix(in srgb, var(--head) 74%, transparent);
+  }
+
+  /* The frame is the canvas. Sits under the copy so the photo reads as ground. */
+  .cse.p7 .vis {
+    position: absolute; inset: 0; border-radius: 0; overflow: hidden; z-index: 1;
+  }
+  .cse.p7 .top { z-index: 4; }
+  .cse.p7 .left { position: absolute; left: 44px; top: 100px; width: 430px; z-index: 2; }
+  .cse.p7 h2.headline { font-size: calc(40px * var(--fs-head) / 100); margin-top: 18px; }
+  .cse.p7 .chips { position: absolute; left: 44px; bottom: 168px; width: 470px; z-index: 2; }
+  .cse.p7 .stats { position: absolute; left: 44px; bottom: 42px; width: 392px; gap: 11px; z-index: 2; }
+
+  /* ---------- photo sizing ----------
+     Photos are sized off the frame height rather than `cover`, so they can end
+     up NARROWER than their frame — which is what lets a cut-out person slide
+     horizontally across a canvas they don't fill. `background-position` handles
+     a gap and an overflow with the same percentage, so one control does both.
+     Screenshots keep `cover`: they are meant to fill their browser frame. */
+  .cse.p1 .slot, .cse.p2 .slot, .cse.p3 .slot, .cse.p4 .slot,
+  .cse.p5 .slot, .cse.p6 .slot, .cse.p7 .slot {
+    /* `contain`, not a height fill: the whole person is inside the frame at
+       100%, so nothing is cropped until the size control is deliberately
+       pushed past it. A height fill silently cut off whatever was wider or
+       taller than the frame. */
+    background-size: contain;
+    background-position: center;
+    transform: scale(calc(var(--photo-scale) / 100));
+  }
+  /* Scale and offset live on different elements on purpose. Nesting them in one
+     transform would make the translate percentage resolve in the scaled
+     coordinate system, so a drag would track the cursor only at 100%. */
+  .cse.p1 .slot-wrap, .cse.p2 .slot-wrap, .cse.p3 .slot-wrap, .cse.p4 .slot-wrap,
+  .cse.p5 .slot-wrap, .cse.p6 .slot-wrap, .cse.p7 .slot-wrap {
+    transform: translate(calc(var(--photo-x) * 1%), calc(var(--photo-y) * 1%));
   }

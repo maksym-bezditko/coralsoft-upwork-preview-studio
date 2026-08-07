@@ -1,12 +1,46 @@
 import { CASE_PRESETS } from "./case-presets";
 import { IMAGE_KEYS, getImage, putImage } from "./image-store";
 
-export type CaseVariantId = "c1" | "c2" | "c3" | "c4" | "c5";
+/**
+ * Two families of cover.
+ *
+ * `c*` lead with a screenshot of the product that was built. `p*` are the same
+ * compositions with the product screenshot swapped for a photo of a person,
+ * carrying headline, description and skills instead of result figures — for
+ * covers that sell the team rather than the app.
+ */
+export type CaseVariantId =
+  | "c1"
+  | "c2"
+  | "c3"
+  | "c4"
+  | "c5"
+  | "p1"
+  | "p2"
+  | "p3"
+  | "p4"
+  | "p5"
+  | "p6"
+  | "p7";
+
+/** Whether a layout carries a person photo instead of a product screenshot. */
+export function usesPortrait(variant: CaseVariantId): boolean {
+  return variant.startsWith("p");
+}
 
 /**
- * Which part of the screenshot stays visible inside its slot, as
- * `background-position` percentages. Long full-page screenshots overflow the
- * slot badly under `cover`, so y is the one that usually needs moving.
+ * Whether a layout renders result figures. The photo family leads with a
+ * description instead — except P6 and P7, which are roomy enough for both.
+ */
+export function usesStats(variant: CaseVariantId): boolean {
+  return !usesPortrait(variant) || variant === "p6" || variant === "p7";
+}
+
+/**
+ * Which part of an image stays visible inside its slot, as `background-position`
+ * percentages. Under `cover` an image whose aspect ratio differs from the slot
+ * overflows on one axis — a long full-page screenshot by a lot, a portrait
+ * usually vertically — and this picks which slice shows.
  */
 export interface ScreenPos {
   x: number;
@@ -73,9 +107,14 @@ export interface CaseEditorState extends CaseColors, CaseFontScales {
   urlHint: string; // browser address bar / bleed caption
   techTags: CaseTag[];
   stats: CaseStat[];
-  screenshot: string | null; // data URL — the web platform screenshot
+  screenshot: string | null; // data URL — the web platform screenshot (c*)
   screenPos: ScreenPos; // which part of it the slot shows
   screenHint: string; // placeholder caption while the slot is empty
+  portrait: string | null; // data URL — the person photo (p*)
+  portraitPos: ScreenPos;
+  portraitHint: string;
+  /** Photo height as a percent of its frame. 100 = exactly fills the height. */
+  portraitScale: number;
 }
 
 /** How many chips each layout has room for — the source of truth for both the
@@ -86,6 +125,13 @@ export const CASE_TAG_LIMITS: Record<CaseVariantId, number> = {
   c3: 4,
   c4: 4,
   c5: 4,
+  p1: 6,
+  p2: 5,
+  p3: 5,
+  p4: 4,
+  p5: 4,
+  p6: 4,
+  p7: 4,
 };
 
 /** The most any layout can show, so the editor never collects dead rows. */
@@ -132,6 +178,12 @@ export const DEFAULT_CASE_STATE: CaseEditorState = {
   ...CASE_PRESETS[0].copy,
   screenshot: null,
   screenPos: { x: 50, y: 50 },
+  portrait: null,
+  // A free offset from centre, in percent of the frame — not a crop window,
+  // so the photo can be pushed clean off an edge.
+  portraitPos: { x: 0, y: 0 },
+  portraitHint: "Drop a photo",
+  portraitScale: 100,
 };
 
 export interface CaseVariantDef {
@@ -147,6 +199,13 @@ export const CASE_VARIANT_DEFS: CaseVariantDef[] = [
   { id: "c3", num: "03", label: "Stat hero" },
   { id: "c4", num: "04", label: "Poster" },
   { id: "c5", num: "05", label: "Accent split" },
+  { id: "p1", num: "06", label: "Editorial · photo" },
+  { id: "p2", num: "07", label: "Bleed · photo" },
+  { id: "p3", num: "08", label: "Portrait left" },
+  { id: "p4", num: "09", label: "Poster · photo" },
+  { id: "p5", num: "10", label: "Accent split · photo" },
+  { id: "p6", num: "11", label: "Accent full · photo" },
+  { id: "p7", num: "12", label: "Photo backdrop" },
 ];
 
 /**
@@ -161,7 +220,12 @@ export function loadCaseState(): CaseEditorState {
     const raw = window.localStorage.getItem(CASE_LS_KEY);
     if (!raw) return DEFAULT_CASE_STATE;
     const parsed = JSON.parse(raw) as Partial<CaseEditorState>;
-    const merged = { ...DEFAULT_CASE_STATE, ...parsed, screenshot: null };
+    const merged = {
+      ...DEFAULT_CASE_STATE,
+      ...parsed,
+      screenshot: null,
+      portrait: null,
+    };
     // A layout that has since been retired (or renumbered) would otherwise
     // resolve to an undefined component and blank the stage.
     if (!CASE_VARIANT_DEFS.some((v) => v.id === merged.variant)) {
@@ -183,18 +247,44 @@ export function saveCaseState(state: CaseEditorState): void {
   try {
     const persisted: Partial<CaseEditorState> = { ...state };
     delete persisted.screenshot;
+    delete persisted.portrait;
     window.localStorage.setItem(CASE_LS_KEY, JSON.stringify(persisted));
   } catch {
     /* storage unavailable — non-fatal */
   }
 }
 
-/** Hydrate the screenshot from IndexedDB. */
-export function loadCaseImage(): Promise<string | null> {
-  return getImage(IMAGE_KEYS.caseScreenshot);
+/** Hydrate the screenshot and photo from IndexedDB. */
+export async function loadCaseImages(): Promise<
+  Pick<CaseEditorState, "screenshot" | "portrait">
+> {
+  const [screenshot, portrait] = await Promise.all([
+    getImage(IMAGE_KEYS.caseScreenshot),
+    getImage(IMAGE_KEYS.casePortrait),
+  ]);
+  return { screenshot, portrait };
 }
 
-/** Mirror the screenshot to IndexedDB. A no-op when it hasn't changed. */
-export function saveCaseImage(screenshot: string | null): Promise<void> {
-  return putImage(IMAGE_KEYS.caseScreenshot, screenshot);
+/** Mirror both images to IndexedDB. Unchanged ones are skipped. */
+export async function saveCaseImages(
+  screenshot: string | null,
+  portrait: string | null,
+): Promise<void> {
+  await Promise.all([
+    putImage(IMAGE_KEYS.caseScreenshot, screenshot),
+    putImage(IMAGE_KEYS.casePortrait, portrait),
+  ]);
 }
+
+/** Photo size slider bounds, in percent of the frame height. */
+export const PHOTO_SCALE_MIN = 50;
+export const PHOTO_SCALE_MAX = 260;
+export const PHOTO_SCALE_STEP = 5;
+
+/**
+ * Photo offset bounds, in percent of the frame. Wide enough on both sides to
+ * push the photo entirely off any edge — positioning a person on a cover is a
+ * composition decision, not something to fence in.
+ */
+export const PHOTO_OFFSET_MIN = -150;
+export const PHOTO_OFFSET_MAX = 150;

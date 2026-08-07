@@ -1,6 +1,8 @@
 import {
   CASE_TAG_LIMITS,
   CASE_VARIANT_DEFS,
+  usesPortrait,
+  usesStats,
   type CaseEditorState,
   type CaseVariantId,
 } from "@/lib/case-state";
@@ -36,6 +38,8 @@ export function CaseSidebar({
   onApplyPreset,
   onResetAll,
 }: CaseSidebarProps) {
+  const photo = usesPortrait(state.variant);
+  const stats = usesStats(state.variant);
   return (
     <aside className="side overflow-x-hidden overflow-y-auto border-r border-line bg-bg-2">
       <header className="flex items-center gap-[14px] border-b border-line px-6 pb-5 pt-6">
@@ -86,10 +90,14 @@ export function CaseSidebar({
         />
       </section>
 
-      <section className="border-b border-line px-6 py-5">
-        <SectionHeader>Numbers</SectionHeader>
-        <StatsFields stats={state.stats} onChange={(v) => set("stats", v)} />
-      </section>
+      {/* The photo family leads with a description instead of result figures,
+          except P6, which has room for both. */}
+      {stats && (
+        <section className="border-b border-line px-6 py-5">
+          <SectionHeader>Numbers</SectionHeader>
+          <StatsFields stats={state.stats} onChange={(v) => set("stats", v)} />
+        </section>
+      )}
 
       <section className="border-b border-line px-6 py-5">
         <SectionHeader>Colors</SectionHeader>
@@ -102,17 +110,37 @@ export function CaseSidebar({
       </section>
 
       <section className="border-b border-line px-6 py-5">
-        <SectionHeader>Screenshot</SectionHeader>
-        <DropZone
-          label="Web platform screenshot"
-          value={state.screenshot}
-          onChange={(v) => set("screenshot", v)}
-        />
-        {state.screenshot && (
-          <ScreenPosition
-            value={state.screenPos}
-            onChange={(v) => set("screenPos", v)}
-          />
+        <SectionHeader>{photo ? "Photo" : "Screenshot"}</SectionHeader>
+        {photo ? (
+          <>
+            <DropZone
+              label="Photo of a person"
+              value={state.portrait}
+              onChange={(v) => set("portrait", v)}
+            />
+            {state.portrait && (
+              <ScreenPosition
+                value={state.portraitPos}
+                onChange={(v) => set("portraitPos", v)}
+                scale={state.portraitScale}
+                onScaleChange={(v) => set("portraitScale", v)}
+              />
+            )}
+          </>
+        ) : (
+          <>
+            <DropZone
+              label="Web platform screenshot"
+              value={state.screenshot}
+              onChange={(v) => set("screenshot", v)}
+            />
+            {state.screenshot && (
+              <ScreenPosition
+                value={state.screenPos}
+                onChange={(v) => set("screenPos", v)}
+              />
+            )}
+          </>
         )}
       </section>
 

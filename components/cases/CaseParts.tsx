@@ -1,5 +1,4 @@
-import type { CaseStat, CaseTag, ScreenPos } from "@/lib/case-state";
-import { ImageSlot } from "@/components/variants/ImageSlot";
+import type { CaseStat, CaseTag } from "@/lib/case-state";
 import { Logo } from "@/components/variants/Logo";
 
 /** WCAG relative luminance of a `#rrggbb` colour. */
@@ -122,17 +121,6 @@ export function Stats({ stats }: StatsProps) {
       ))}
     </div>
   );
-}
-
-interface ScreenSlotProps {
-  src: string | null;
-  hint: string;
-  pos: ScreenPos;
-}
-
-/** The web-platform screenshot slot, framed at whatever the layout dictates. */
-export function ScreenSlot({ src, hint, pos }: ScreenSlotProps) {
-  return <ImageSlot src={src} hint={hint} position={`${pos.x}% ${pos.y}%`} />;
 }
 
 interface BrowserProps {

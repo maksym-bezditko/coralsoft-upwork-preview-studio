@@ -1,6 +1,7 @@
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
 import { caseStyleVars, type CaseVariantProps } from "./types";
-import { Browser, CaseLogo, Chips, Kicker, ProductLabel, ScreenSlot, Stats } from "./CaseParts";
+import { DraggableSlot } from "./DraggableSlot";
+import { Browser, CaseLogo, Chips, Kicker, ProductLabel, Stats } from "./CaseParts";
 
 /** C2 — Premium. Browser bleeding off the right edge, stats on a heavy rule. */
 export function C2Light(props: CaseVariantProps) {
@@ -30,7 +31,7 @@ export function C2Light(props: CaseVariantProps) {
       </div>
       <div className="vis">
         <Browser url={urlHint}>
-          <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
+          <DraggableSlot src={screenshot} hint={screenHint} pos={screenPos} onPosChange={props.onImagePosChange} />
         </Browser>
       </div>
       <Stats stats={stats} />

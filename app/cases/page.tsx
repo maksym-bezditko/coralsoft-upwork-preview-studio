@@ -3,11 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DEFAULT_CASE_STATE,
-  loadCaseImage,
+  loadCaseImages,
   loadCaseState,
-  saveCaseImage,
+  saveCaseImages,
   saveCaseState,
+  usesPortrait,
   type CaseEditorState,
+  type ScreenPos,
 } from "@/lib/case-state";
 import type { CaseCopy } from "@/lib/case-presets";
 import { exportStage, type ExportFormat } from "@/lib/export";
@@ -34,9 +36,9 @@ export default function CaseStudies() {
     let alive = true;
     void (async () => {
       const base = loadCaseState();
-      const screenshot = await loadCaseImage();
+      const images = await loadCaseImages();
       if (!alive) return;
-      setState({ ...base, screenshot });
+      setState({ ...base, ...images });
       setHydrated(true);
     })();
     return () => {
@@ -51,8 +53,19 @@ export default function CaseStudies() {
   }, [state, hydrated]);
 
   useEffect(() => {
-    if (hydrated) void saveCaseImage(state.screenshot);
-  }, [state.screenshot, hydrated]);
+    if (hydrated) void saveCaseImages(state.screenshot, state.portrait);
+  }, [state.screenshot, state.portrait, hydrated]);
+
+  // A layout carries exactly one image, so dragging on the stage routes to
+  // whichever position field the selected family uses.
+  const onImagePosChange = useCallback(
+    (pos: ScreenPos) => {
+      setState((s) =>
+        usesPortrait(s.variant) ? { ...s, portraitPos: pos } : { ...s, screenPos: pos },
+      );
+    },
+    [],
+  );
 
   const set = useCallback(
     <K extends keyof CaseEditorState>(key: K, value: CaseEditorState[K]) => {
@@ -108,7 +121,7 @@ export default function CaseStudies() {
         />
 
         <StagePreview exportRef={exportRef} width={STAGE_W} height={STAGE_H}>
-          <CaseComponent {...state} />
+          <CaseComponent {...state} onImagePosChange={onImagePosChange} />
         </StagePreview>
 
         <footer className="relative z-[2] border-t border-line bg-[rgba(15,15,16,0.6)] px-7 py-3 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-fg-50 backdrop-blur-md">

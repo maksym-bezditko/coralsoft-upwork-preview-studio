@@ -1,6 +1,7 @@
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
 import { caseStyleVars, type CaseVariantProps } from "./types";
-import { CaseLogo, Chips, Kicker, ScreenSlot, Stats } from "./CaseParts";
+import { DraggableSlot } from "./DraggableSlot";
+import { CaseLogo, Chips, Kicker, Stats } from "./CaseParts";
 
 /**
  * C4 — Editorial poster. Numeral + headline + summary on the left, tinted panel
@@ -39,7 +40,7 @@ export function C4Poster(props: CaseVariantProps) {
       <Chips tags={techTags} limit={CASE_TAG_LIMITS.c4} />
       <div className="panel">
         <div className="vis">
-          <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
+          <DraggableSlot src={screenshot} hint={screenHint} pos={screenPos} onPosChange={props.onImagePosChange} />
         </div>
         <Stats stats={stats} />
       </div>

@@ -1,14 +1,7 @@
 import { CASE_TAG_LIMITS } from "@/lib/case-state";
 import { caseStyleVars, type CaseVariantProps } from "./types";
-import {
-  CaseLogo,
-  Chips,
-  Kicker,
-  ProductLabel,
-  ScreenSlot,
-  Stats,
-  hasStats,
-} from "./CaseParts";
+import { DraggableSlot } from "./DraggableSlot";
+import { CaseLogo, Chips, Kicker, ProductLabel, Stats, hasStats } from "./CaseParts";
 
 /** C3 — Stat hero. Numbers forward: oversized figures along the bottom rule. */
 export function C3Stat(props: CaseVariantProps) {
@@ -36,7 +29,7 @@ export function C3Stat(props: CaseVariantProps) {
       </div>
       <Chips tags={techTags} limit={CASE_TAG_LIMITS.c3} />
       <div className="vis">
-        <ScreenSlot src={screenshot} hint={screenHint} pos={screenPos} />
+        <DraggableSlot src={screenshot} hint={screenHint} pos={screenPos} onPosChange={props.onImagePosChange} />
       </div>
       {/* The rule underlines the figures, so it goes when they do. */}
       {hasStats(stats) && <div className="rule" />}
