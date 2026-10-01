@@ -1,7 +1,7 @@
 import "./case.css";
 
 import type { ComponentType } from "react";
-import type { CaseVariantId } from "@/lib/case-state";
+import type { ClassicCaseVariantId } from "@/lib/case-state";
 import type { CaseVariantProps } from "./types";
 import { C1Master } from "./C1Master";
 import { C2Light } from "./C2Light";
@@ -19,7 +19,7 @@ import {
 } from "./PhotoLayouts";
 
 export const CASE_COMPONENTS: Record<
-  CaseVariantId,
+  ClassicCaseVariantId,
   ComponentType<CaseVariantProps>
 > = {
   c1: C1Master,

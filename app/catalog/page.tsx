@@ -2,44 +2,40 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  DEFAULT_STATE,
-  VARIANT_DEFS,
-  isCoverVariant,
-  loadImages,
-  loadState,
-  saveImages,
-  saveState,
-  type EditorState,
-  type VariantId,
-} from "@/lib/state";
+  CATALOG_VARIANT_DEFS,
+  DEFAULT_CATALOG_STATE,
+  loadCatalogImages,
+  loadCatalogState,
+  saveCatalogImages,
+  saveCatalogState,
+  type CatalogEditorState,
+  type CatalogVariantId,
+} from "@/lib/catalog-state";
 import type { ScreenPos } from "@/lib/case-state";
 import { useArchive, useKeepSelectionVisible } from "@/lib/archive";
 import { exportStage, type ExportFormat } from "@/lib/export";
-import { VARIANT_COMPONENTS } from "@/components/variants";
 import { PortfolioCover } from "@/components/covers/PortfolioCover";
-import { Sidebar } from "@/components/editor/Sidebar";
+import { CatalogSidebar } from "@/components/editor/CatalogSidebar";
 import { StageChrome } from "@/components/editor/StageChrome";
 import { StagePreview } from "@/components/editor/StagePreview";
 
 const STAGE_W = 1000;
 const STAGE_H = 750;
 
-export default function Home() {
+export default function Catalog() {
   // Start from defaults so server + first client paint match, then hydrate
   // from localStorage after mount.
-  const [state, setState] = useState<EditorState>(DEFAULT_STATE);
+  const [state, setState] = useState<CatalogEditorState>(DEFAULT_CATALOG_STATE);
   const [hydrated, setHydrated] = useState(false);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
-  const archive = useArchive<VariantId>("mobile");
+  const archive = useArchive<CatalogVariantId>("catalog");
 
-  // Copy comes from localStorage synchronously; the images are read from
-  // IndexedDB, so hydration has to await them before the stage is live.
   useEffect(() => {
     let alive = true;
     void (async () => {
-      const base = loadState();
-      const images = await loadImages();
+      const base = loadCatalogState();
+      const images = await loadCatalogImages();
       if (!alive) return;
       setState({ ...base, ...images });
       setHydrated(true);
@@ -49,37 +45,31 @@ export default function Home() {
     };
   }, []);
 
-  // Auto-save on every change (only once hydrated, so we never clobber stored
-  // state with the initial defaults).
   useEffect(() => {
-    if (hydrated) saveState(state);
+    if (hydrated) saveCatalogState(state);
   }, [state, hydrated]);
 
   useEffect(() => {
-    if (hydrated) void saveImages(state.portrait, state.screens);
-  }, [state.portrait, state.screens, hydrated]);
+    if (hydrated) void saveCatalogImages(state.portrait);
+  }, [state.portrait, hydrated]);
 
   const set = useCallback(
-    <K extends keyof EditorState>(key: K, value: EditorState[K]) => {
+    <K extends keyof CatalogEditorState>(key: K, value: CatalogEditorState[K]) => {
       setState((s) => ({ ...s, [key]: value }));
     },
     [],
   );
 
-  const selectVariant = useCallback((id: VariantId) => set("variant", id), [set]);
-  useKeepSelectionVisible(VARIANT_DEFS, archive.archived, state.variant, selectVariant);
+  const selectVariant = useCallback(
+    (id: CatalogVariantId) => set("variant", id),
+    [set],
+  );
+  useKeepSelectionVisible(CATALOG_VARIANT_DEFS, archive.archived, state.variant, selectVariant);
 
   const onPhotoPosChange = useCallback(
     (pos: ScreenPos) => set("coverPhotoPos", pos),
     [set],
   );
-
-  const setScreen = useCallback((index: number, value: string | null) => {
-    setState((s) => ({
-      ...s,
-      screens: s.screens.map((x, i) => (i === index ? value : x)) as EditorState["screens"],
-    }));
-  }, []);
 
   const onExport = useCallback(
     async (format: ExportFormat) => {
@@ -90,9 +80,7 @@ export default function Home() {
         await exportStage({
           node,
           format,
-          title: isCoverVariant(state.variant)
-            ? `${state.coverTitle} ${state.coverAccent}`
-            : state.title,
+          title: `${state.coverTitle} ${state.coverAccent}`,
           variant: state.variant,
         });
       } catch (err) {
@@ -104,21 +92,16 @@ export default function Home() {
         setExporting(false);
       }
     },
-    [exporting, state.title, state.coverTitle, state.coverAccent, state.variant],
+    [exporting, state.coverTitle, state.coverAccent, state.variant],
   );
-
-  const VariantComponent = isCoverVariant(state.variant)
-    ? null
-    : VARIANT_COMPONENTS[state.variant];
 
   return (
     <div className="editor">
-      <Sidebar
+      <CatalogSidebar
         state={state}
         set={set}
-        setScreen={setScreen}
         archive={archive}
-        onResetAll={() => setState(DEFAULT_STATE)}
+        onResetAll={() => setState(DEFAULT_CATALOG_STATE)}
       />
 
       <main className="stage-wrap">
@@ -129,19 +112,11 @@ export default function Home() {
         />
 
         <StagePreview exportRef={exportRef} width={STAGE_W} height={STAGE_H}>
-          {VariantComponent ? (
-            <VariantComponent {...state} />
-          ) : (
-            <PortfolioCover
-              kind="mobile"
-              {...state}
-              onPhotoPosChange={onPhotoPosChange}
-            />
-          )}
+          <PortfolioCover kind="catalog" {...state} onPhotoPosChange={onPhotoPosChange} />
         </StagePreview>
 
         <footer className="relative z-[2] border-t border-line bg-[rgba(15,15,16,0.6)] px-7 py-3 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-fg-50 backdrop-blur-md">
-          Drop images in the sidebar slots ·{" "}
+          Drop a developer photo in the sidebar ·{" "}
           {hydrated ? "Auto-saved to your browser" : "Loading…"}
         </footer>
       </main>

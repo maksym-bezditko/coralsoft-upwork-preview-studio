@@ -1,17 +1,20 @@
+import type { ReactNode } from "react";
 import { ImageSlot } from "./ImageSlot";
 
 interface PhoneProps {
   className: string;
   src: string | null;
   hint: string;
+  /** Rendered on the screen instead of the hint while there's no image. */
+  empty?: ReactNode;
 }
 
 /** A single phone bezel (frame + screen slot + notch). */
-export function Phone({ className, src, hint }: PhoneProps) {
+export function Phone({ className, src, hint, empty }: PhoneProps) {
   return (
     <div className={`v-phone ${className}`}>
       <div className="screen">
-        <ImageSlot src={src} hint={hint} />
+        {!src && empty ? empty : <ImageSlot src={src} hint={hint} />}
       </div>
       <div className="notch" />
     </div>

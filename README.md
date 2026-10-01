@@ -1,18 +1,29 @@
 # Coralsoft — Preview Studio
 
-An internal tool for generating **Upwork Project Catalog** preview images. Two
+An internal tool for generating **Upwork Project Catalog** preview images. Three
 studios share one editor shell and one stage size, switched from the sidebar:
 
 | Route | Studio | Shows | Layouts |
 |-------|--------|-------|---------|
-| `/` | Mobile app | Portrait + 3-phone cascade | 6 |
-| `/cases` | Web case study | One desktop / web platform screenshot | 5 |
+| `/cases` | Portfolio · Web app | One desktop / web platform screenshot | 13 |
+| `/` | Portfolio · Mobile app | Portrait + 3 phone screens | 7 |
+| `/catalog` | Project catalog | Service cover with a developer photo | 1 |
 
-Both render a **1000 × 750** stage and export a pixel-accurate **2000 × 1500**
-PNG or JPEG (a 2× capture). Both work the same way: pick a layout variant, edit
+Each studio's newest layout ("Portfolio · photo" / "Service · photo") is the
+shared `PortfolioCover` (`components/covers/`): a 1:1 build of the design
+mockups, with a developer photo placed straight on the canvas (no frame) next to
+the screenshot or phones.
+
+Any layout can be **archived** from its tile (hover → archive icon). Archived
+layouts drop off the board and are listed at the bottom of the sidebar, under
+"Reset all", each with a Restore button. The archive lives in its own
+`localStorage` slot per studio, so "Reset all" never brings archived layouts back.
+
+Every studio renders a **1000 × 750** stage and exports a pixel-accurate **2000 × 1500**
+PNG or JPEG (a 2× capture). All work the same way: pick a layout variant, edit
 the copy, drop in images, optionally re-tint the primary/secondary colors, and
 export. Each keeps its own `localStorage` slot, so switching studios never
-disturbs the other's work in progress.
+disturbs another's work in progress.
 
 This is a clean **Next.js 15 + TypeScript + Tailwind v4** rebuild of the original
 Babel-in-the-browser prototypes, with proper component architecture and type safety.

@@ -23,6 +23,7 @@ export const IMAGE_KEYS = {
   screens: ["upwork:screen:0", "upwork:screen:1", "upwork:screen:2"],
   caseScreenshot: "cases:screenshot",
   casePortrait: "cases:portrait",
+  catalogPortrait: "catalog:portrait",
 } as const;
 
 let dbPromise: Promise<IDBDatabase | null> | null = null;

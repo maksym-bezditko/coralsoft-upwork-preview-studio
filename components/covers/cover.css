@@ -1,0 +1,288 @@
+/* ============================================================
+   Portfolio / catalog covers — a 1:1 build of the three mockups.
+
+   Every element is absolutely placed in the stage's 1000 × 750 px, at the
+   coordinates measured off the mockups, so the empty cover matches them
+   exactly. The only thing that flows is text width: a title that runs long
+   shrinks to fit (see `useFitWidth`) and keeps its baseline.
+   ============================================================ */
+
+  .pfc {
+    --ink: #0b1824;
+    --coral: #fd5741;
+    --pink: #fdbbb2;
+    --cloud: #f1f0ee;
+    --label: #4f545d;
+    position: relative;
+    width: 1000px;
+    height: 750px;
+    overflow: hidden;
+    background: #fefdf9;
+    color: var(--ink);
+    font-family: var(--font-inter), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .pfc * { box-sizing: border-box; }
+
+  /* Per-cover geometry. Title tops are line-box tops at line-height 1 — the
+     cap line sits 0.136em below them in Inter Tight / Inter. */
+  .pfc-catalog {
+    --logo-top: 48.4px;
+    --eyebrow-top: 146.6px; --eyebrow-size: 19.5px; --eyebrow-track: 0.261em;
+    --l1-top: 176.7px; --l1-size: 125px;
+    --l2-top: 280.6px; --l2-size: 130px;
+    --desc-top: 409.9px; --desc-size: 30.7px;
+    --photo-left: 462px; --photo-top: 143px; --photo-w: 596px; --photo-h: 607px;
+    --hint-x: 754px; --hint-y: 625px; --hint-track: 0.26em;
+  }
+  .pfc-web, .pfc-mobile {
+    --logo-top: 43.8px;
+    --eyebrow-top: 131.6px; --eyebrow-size: 17.8px; --eyebrow-track: 0.313em;
+    --l1-top: 158.6px; --l1-size: 106.3px; --l1-track: -0.074em;
+    --l2-top: 247.9px; --l2-size: 112px;
+    --desc-top: 362px; --desc-size: 24px;
+    --photo-left: 570px; --photo-top: 196px; --photo-w: 464px; --photo-h: 554px;
+    --hint-x: 799px; --hint-y: 632px; --hint-track: 0.21em;
+  }
+  /* Web: no eyebrow or description, so the title moves up into their space,
+     the decorative window steps right, clear of the headline, and the
+     screenshot grows to a 16:9 view. */
+  .pfc-web {
+    --l1-top: 118.6px;
+    --l2-top: 207.9px;
+  }
+  .pfc-web .pfc-deco { position: absolute; inset: 0; transform: translate(44px, -14px); }
+  /* The mobile mockup tucks the copy up a little to make room for the phones. */
+  .pfc-mobile {
+    --l1-top: 157.6px;
+    --hint-y: 630px;
+    --l2-top: 242.1px;
+    --desc-top: 348.8px;
+  }
+
+  /* ---- Background ---- */
+  .pfc-grid {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  .pfc-sq {
+    position: absolute; width: 15.5px; height: 15.5px;
+    border-radius: 2.5px; background: var(--coral);
+  }
+  .pfc-catalog .pfc-sq-1 { left: 447.5px; top: 45px; width: 16px; height: 16px; }
+  .pfc-catalog .pfc-sq-2 { left: 977.9px; top: 346.8px; width: 15.3px; height: 15.8px; }
+  .pfc-web .pfc-sq-1, .pfc-mobile .pfc-sq-1 { left: 448.2px; top: 44.2px; width: 14.6px; height: 14.6px; }
+  .pfc-web .pfc-sq-2, .pfc-mobile .pfc-sq-2 { left: 978.6px; top: 343.2px; width: 15.2px; height: 15.2px; }
+
+  /* ---- Copy ---- */
+  .pfc-logo {
+    position: absolute; left: 40.3px; top: var(--logo-top);
+    font-family: var(--font-jakarta), system-ui, sans-serif;
+    font-weight: 800; font-size: 39.6px; line-height: 1;
+    letter-spacing: -0.057em; color: var(--ink);
+    white-space: nowrap;
+  }
+  .pfc-eyebrow {
+    position: absolute; left: 40px; top: var(--eyebrow-top);
+    font-size: var(--eyebrow-size); font-weight: 500; line-height: 1;
+    letter-spacing: var(--eyebrow-track); text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .pfc-title { margin: 0; font-weight: inherit; }
+  .pfc-l1, .pfc-l2 {
+    position: absolute; left: 39px;
+    font-family: var(--font-inter-tight), system-ui, sans-serif;
+    font-weight: 900; line-height: 1; text-transform: uppercase;
+    white-space: nowrap;
+  }
+  /* A fitted line shrinks around its baseline (0.8633em down the line box), so
+     the gap to the line below never opens up. */
+  .pfc-l1 {
+    top: calc(var(--l1-top) + (1 - var(--fit, 1)) * 0.8633 * var(--l1-size));
+    font-size: calc(var(--l1-size) * var(--fit, 1));
+    letter-spacing: var(--l1-track, -0.06em); color: var(--ink);
+  }
+  .pfc-l2 {
+    top: calc(var(--l2-top) + (1 - var(--fit, 1)) * 0.8633 * var(--l2-size));
+    font-size: calc(var(--l2-size) * var(--fit, 1));
+    letter-spacing: -0.045em; color: var(--coral);
+  }
+  .pfc-desc {
+    position: absolute; left: 41px; top: var(--desc-top); margin: 0;
+    max-width: 560px;
+    font-size: var(--desc-size); font-weight: 400; line-height: 1;
+    letter-spacing: -0.007em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  /* ---- Person ---- */
+  .pfc-silhouette {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .pfc-photo-hint {
+    position: absolute; left: var(--hint-x); top: var(--hint-y);
+    transform: translateX(-50%);
+    /* Balances the trailing letter-space so the word centres optically. */
+    padding-left: var(--hint-track);
+    font-size: 16px; font-weight: 500; line-height: 1;
+    letter-spacing: var(--hint-track); text-transform: uppercase; color: var(--label);
+    white-space: nowrap; pointer-events: none;
+  }
+  .pfc-photo {
+    position: absolute;
+    left: var(--photo-left); top: var(--photo-top);
+    width: var(--photo-w); height: var(--photo-h);
+  }
+  /* Offset on the wrapper, size on the image — nesting both in one transform
+     would make a drag track the cursor only at 100%. */
+  .pfc-photo .slot-wrap {
+    position: absolute; inset: 0;
+    transform: translate(calc(var(--photo-x) * 1%), calc(var(--photo-y) * 1%));
+  }
+  .pfc-photo .slot {
+    position: absolute; inset: 0;
+    background-size: contain; background-repeat: no-repeat;
+    background-position: center bottom;
+    transform: scale(calc(var(--photo-scale) / 100));
+    transform-origin: center bottom;
+  }
+
+  .pfc .drag-slot { cursor: grab; touch-action: none; }
+  .pfc .drag-slot:active { cursor: grabbing; }
+
+  /* ---- Empty-state screen placeholder ---- */
+  .pfc-empty {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--label); font-weight: 500; line-height: 1;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .pfc-ph-icon { display: block; }
+
+  /* ---- Web: browser window ---- */
+  /* 640 × 360 view (16:9) under a 34px bar, plus the 1px border. */
+  .pfc-browser {
+    position: absolute; left: 38px; top: 328px; width: 642px; height: 396px;
+    border: 1px solid #cdcfd3; border-radius: 9px; overflow: hidden;
+    background: linear-gradient(180deg, #e6e7ea 0%, #e3e5e8 100%);
+  }
+  .pfc-browser-bar {
+    position: absolute; left: 0; right: 0; top: 0; height: 34px;
+    display: flex; align-items: center; gap: 9.5px; padding-left: 15.5px;
+    background: #efefef; border-bottom: 1px solid #d8d9dc;
+  }
+  .pfc-browser-bar i, .pfc-mini-bar i {
+    display: block; width: 11px; height: 11px; border-radius: 50%; background: #c9c9cd;
+  }
+  .pfc-browser-view { position: absolute; left: 0; right: 0; top: 34px; bottom: 0; }
+  .pfc-browser-view .slot-wrap, .pfc-browser-view .slot {
+    position: absolute; inset: 0;
+    background-size: cover; background-repeat: no-repeat;
+  }
+  .pfc-browser .pfc-empty { padding-bottom: 5px; gap: 23px; font-size: 15.5px; letter-spacing: 0.175em; padding-left: 0.175em; }
+  .pfc-browser .pfc-ph-icon { width: 81px; height: 65px; }
+
+  /* ---- Mobile: three phones ----
+     Frame, screen and Dynamic Island come from the shared `.v-phone` rules in
+     variant.css; this only sets the light-canvas hardware tint and places
+     them on the mockup's footprint. */
+  .pfc-mobile {
+    --phone-frame: #0f0f10;
+    --phone-border: rgba(15, 15, 16, 0.16);
+    --phone-shadow: 0 24px 50px -18px rgba(15, 15, 16, 0.3);
+    --phone-screen-bg: #e8e8ec;
+  }
+  .pfc .v-phone { top: 394.5px; width: 157.5px; height: 301.5px; }
+  .pfc-phone-1 { left: 40px; }
+  .pfc-phone-2 { left: 224px; }
+  .pfc .pfc-phone-3 { left: 407px; width: 154.5px; }
+  .pfc .v-phone .slot {
+    position: absolute; inset: 0;
+    background-color: transparent;
+    background-size: cover; background-position: center top; background-repeat: no-repeat;
+  }
+  .pfc .v-phone .pfc-empty {
+    padding-top: 3.5px; gap: 19px; font-size: 11.5px; letter-spacing: 0.22em;
+    padding-left: 0.22em;
+  }
+  .pfc .v-phone .pfc-ph-icon { width: 60px; height: 49px; }
+
+  /* ---- Chat bubbles ---- */
+  .pfc-bub { position: absolute; border-radius: 12px; display: flex; }
+  .pfc-bub.pink { background: var(--pink); }
+  .pfc-bub.gray { background: var(--cloud); }
+  .pfc-bub.pink::after, .pfc-bub.gray::after { background: inherit; }
+  .pfc-bub.tail-l::after, .pfc-bub.tail-r::after {
+    content: ""; position: absolute; top: calc(100% - 1px);
+  }
+  .pfc-bub.tail-l::after { clip-path: polygon(0 0, 100% 0, 0 100%); }
+  .pfc-bub.tail-r::after { clip-path: polygon(0 0, 100% 0, 100% 100%); }
+  .pfc-bub i { display: block; border-radius: 99px; }
+  .pfc-bub.pink i { background: rgba(255, 255, 255, 0.58); }
+  .pfc-bub.gray i { background: #dcdcda; }
+  .pfc-bub b { display: block; border-radius: 50%; }
+
+  /* Catalog */
+  .pfc-bub-a {
+    left: 54px; top: 501.4px; width: 185px; height: 66px;
+    flex-direction: column; padding: 19px 0 0 20px; gap: 13.5px;
+  }
+  .pfc-bub-a::after { left: 9.5px; width: 19.5px; height: 17.2px; }
+  .pfc-bub-a i { height: 6px; }
+  .pfc-bub-b {
+    left: 260.4px; top: 530.4px; width: 108.4px; height: 51.6px;
+    align-items: center; justify-content: center; gap: 11.2px;
+  }
+  .pfc-bub-b::after { left: 3.4px; width: 15.2px; height: 14px; }
+  .pfc-bub-b b { width: 14px; height: 14px; }
+  .pfc-bub-b b:nth-child(1) { background: #cacacd; }
+  .pfc-bub-b b:nth-child(2) { background: #c4c4c7; }
+  .pfc-bub-b b:nth-child(3) { background: #bcbcbf; }
+  .pfc-bub-c {
+    left: 379.8px; top: 569.1px; width: 111.2px; height: 52.5px;
+    flex-direction: column; padding: 15.9px 0 0 13.7px; gap: 10px;
+  }
+  .pfc-bub-c::after { right: 5.5px; width: 12.5px; height: 12.7px; }
+  .pfc-bub-c i { height: 5px; }
+
+  /* Portfolio — the faded app window and its bubbles */
+  .pfc-mini {
+    position: absolute; left: 473.5px; top: 73.5px; width: 147px; height: 224px;
+    border: 1px solid #e3e3e1; border-bottom: 0; border-radius: 10px 10px 0 0;
+    background: rgba(255, 255, 255, 0.3);
+    -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 62%, transparent 100%);
+  }
+  .pfc-mini-bar {
+    position: absolute; left: 0; right: 0; top: 0; height: 32px;
+    display: flex; align-items: center; gap: 6.5px; padding-left: 12px;
+    background: #f4f3f1; border-bottom: 1px solid #e9e8e6;
+    border-radius: 9px 9px 0 0;
+  }
+  .pfc-mini-bar i { width: 9px; height: 9px; background: #dadad9; }
+  .pfc-mini-row {
+    position: absolute; left: 12.5px; display: flex; align-items: center; gap: 10px;
+  }
+  .pfc-mini-row b { display: block; width: 13px; height: 13px; border-radius: 2.5px; background: #eeedeb; }
+  .pfc-mini-row i { display: block; height: 4px; border-radius: 99px; background: #eeedeb; }
+
+  .pfc-bub-d {
+    left: 496.5px; top: 187.8px; width: 103px; height: 43.5px; border-radius: 10px;
+    flex-direction: column; padding: 10.7px 0 0 13px; gap: 5.5px;
+  }
+  .pfc-bub-d::after { left: 0.5px; width: 13px; height: 10px; }
+  .pfc-bub-d i { height: 4px; }
+  .pfc-bub-e {
+    left: 517.3px; top: 244.5px; width: 104.2px; height: 43.5px; border-radius: 10px;
+    flex-direction: column; padding: 12.3px 0 0 11.7px; gap: 8.5px;
+  }
+  .pfc-bub-e::after { right: 0; width: 13px; height: 10px; }
+  .pfc-bub-e i { height: 4.5px; }
+  .pfc-bub-f {
+    left: 420.6px; top: 296.3px; width: 69.7px; height: 39.3px; border-radius: 10px;
+    align-items: center; padding-left: 11px; gap: 4.5px;
+  }
+  .pfc-bub-f b { width: 13px; height: 13px; background: #c4c4c7; }
+  .pfc-bub-f b.w { background: #ffffff; }

@@ -2,18 +2,23 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  CASE_VARIANT_DEFS,
   DEFAULT_CASE_STATE,
+  isCoverCaseVariant,
   loadCaseImages,
   loadCaseState,
   saveCaseImages,
   saveCaseState,
   usesPortrait,
   type CaseEditorState,
+  type CaseVariantId,
   type ScreenPos,
 } from "@/lib/case-state";
+import { useArchive, useKeepSelectionVisible } from "@/lib/archive";
 import type { CaseCopy } from "@/lib/case-presets";
 import { exportStage, type ExportFormat } from "@/lib/export";
 import { CASE_COMPONENTS } from "@/components/cases";
+import { PortfolioCover } from "@/components/covers/PortfolioCover";
 import { CaseSidebar } from "@/components/editor/CaseSidebar";
 import { StageChrome } from "@/components/editor/StageChrome";
 import { StagePreview } from "@/components/editor/StagePreview";
@@ -29,6 +34,7 @@ export default function CaseStudies() {
   const [hydrated, setHydrated] = useState(false);
   const [exporting, setExporting] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+  const archive = useArchive<CaseVariantId>("web");
 
   // Copy comes from localStorage synchronously; the screenshot is read from
   // IndexedDB, so hydration has to await it before the stage is live.
@@ -74,6 +80,20 @@ export default function CaseStudies() {
     [],
   );
 
+  const selectVariant = useCallback(
+    (id: CaseVariantId) => set("variant", id),
+    [set],
+  );
+  useKeepSelectionVisible(CASE_VARIANT_DEFS, archive.archived, state.variant, selectVariant);
+
+  // The portfolio cover carries a screenshot and a photo at once, so each
+  // gets its own drag handler instead of the routed one above.
+  const onCoverPhotoPos = useCallback(
+    (pos: ScreenPos) => set("coverPhotoPos", pos),
+    [set],
+  );
+  const onCoverScreenPos = useCallback((pos: ScreenPos) => set("screenPos", pos), [set]);
+
   const applyPreset = useCallback((copy: CaseCopy) => {
     setState((s) => ({ ...s, ...copy }));
   }, []);
@@ -87,7 +107,9 @@ export default function CaseStudies() {
         await exportStage({
           node,
           format,
-          title: `${state.product} ${state.headline}`,
+          title: isCoverCaseVariant(state.variant)
+            ? `${state.coverTitle} ${state.coverAccent}`
+            : `${state.product} ${state.headline}`,
           variant: state.variant,
         });
       } catch (err) {
@@ -99,10 +121,19 @@ export default function CaseStudies() {
         setExporting(false);
       }
     },
-    [exporting, state.product, state.headline, state.variant],
+    [
+      exporting,
+      state.product,
+      state.headline,
+      state.coverTitle,
+      state.coverAccent,
+      state.variant,
+    ],
   );
 
-  const CaseComponent = CASE_COMPONENTS[state.variant];
+  const CaseComponent = isCoverCaseVariant(state.variant)
+    ? null
+    : CASE_COMPONENTS[state.variant];
 
   return (
     <div className="editor">
@@ -110,6 +141,7 @@ export default function CaseStudies() {
         state={state}
         set={set}
         onApplyPreset={applyPreset}
+        archive={archive}
         onResetAll={() => setState(DEFAULT_CASE_STATE)}
       />
 
@@ -121,7 +153,16 @@ export default function CaseStudies() {
         />
 
         <StagePreview exportRef={exportRef} width={STAGE_W} height={STAGE_H}>
-          <CaseComponent {...state} onImagePosChange={onImagePosChange} />
+          {CaseComponent ? (
+            <CaseComponent {...state} onImagePosChange={onImagePosChange} />
+          ) : (
+            <PortfolioCover
+              kind="web"
+              {...state}
+              onPhotoPosChange={onCoverPhotoPos}
+              onScreenPosChange={onCoverScreenPos}
+            />
+          )}
         </StagePreview>
 
         <footer className="relative z-[2] border-t border-line bg-[rgba(15,15,16,0.6)] px-7 py-3 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-fg-50 backdrop-blur-md">

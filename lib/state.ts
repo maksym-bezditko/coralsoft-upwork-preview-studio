@@ -1,8 +1,18 @@
+import type { CoverCopy, CoverPhoto } from "@/components/covers/PortfolioCover";
 import { IMAGE_KEYS, getImage, putImage } from "./image-store";
 
-export type VariantId = "v1" | "v2" | "v3" | "v4" | "v5" | "v6";
+/** The original six compositions, each a `VARIANT_COMPONENTS` entry. */
+export type ClassicVariantId = "v1" | "v2" | "v3" | "v4" | "v5" | "v6";
 
-export interface EditorState {
+/** `n1` is the portfolio cover (`PortfolioCover kind="mobile"`). */
+export type VariantId = ClassicVariantId | "n1";
+
+/** Whether a layout is the portfolio cover rather than a classic composition. */
+export function isCoverVariant(variant: VariantId): variant is "n1" {
+  return variant === "n1";
+}
+
+export interface EditorState extends CoverCopy, CoverPhoto {
   variant: VariantId;
   primary: string; // hex, default '#FE744D'
   secondary: string; // hex, default '#0F0F10'
@@ -29,6 +39,12 @@ export const DEFAULT_STATE: EditorState = {
   portrait: null,
   screens: [null, null, null],
   hints: ["Drop screen 01", "Drop screen 02", "Drop screen 03"],
+  coverEyebrow: "Portfolio case",
+  coverTitle: "Project",
+  coverAccent: "Title",
+  coverDescription: "Short project description goes here",
+  coverPhotoPos: { x: 0, y: 0 },
+  coverPhotoScale: 100,
 };
 
 export interface VariantDef {
@@ -44,6 +60,7 @@ export const VARIANT_DEFS: VariantDef[] = [
   { id: "v4", num: "04", label: "Coral forward" },
   { id: "v5", num: "05", label: "Code terminal" },
   { id: "v6", num: "06", label: "Diagonal split" },
+  { id: "n1", num: "07", label: "Portfolio · photo" },
 ];
 
 export const PRIMARY_SWATCHES = [
@@ -76,7 +93,17 @@ export function loadState(): EditorState {
     const raw = window.localStorage.getItem(LS_KEY);
     if (!raw) return DEFAULT_STATE;
     const parsed = JSON.parse(raw) as Partial<EditorState>;
-    return { ...DEFAULT_STATE, ...parsed, portrait: null, screens: [null, null, null] };
+    const merged: EditorState = {
+      ...DEFAULT_STATE,
+      ...parsed,
+      portrait: null,
+      screens: [null, null, null],
+    };
+    // A retired layout id would otherwise resolve to no component.
+    if (!VARIANT_DEFS.some((v) => v.id === merged.variant)) {
+      merged.variant = DEFAULT_STATE.variant;
+    }
+    return merged;
   } catch {
     return DEFAULT_STATE;
   }

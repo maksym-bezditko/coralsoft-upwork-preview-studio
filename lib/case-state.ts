@@ -1,3 +1,4 @@
+import type { CoverCopy, CoverPhoto } from "@/components/covers/PortfolioCover";
 import { CASE_PRESETS } from "./case-presets";
 import { IMAGE_KEYS, getImage, putImage } from "./image-store";
 
@@ -9,7 +10,7 @@ import { IMAGE_KEYS, getImage, putImage } from "./image-store";
  * carrying headline, description and skills instead of result figures — for
  * covers that sell the team rather than the app.
  */
-export type CaseVariantId =
+export type ClassicCaseVariantId =
   | "c1"
   | "c2"
   | "c3"
@@ -22,6 +23,17 @@ export type CaseVariantId =
   | "p5"
   | "p6"
   | "p7";
+
+/**
+ * `n1` is the portfolio cover (`PortfolioCover kind="web"`): its own copy, a
+ * fixed palette, and both a screenshot and a photo at once.
+ */
+export type CaseVariantId = ClassicCaseVariantId | "n1";
+
+/** Whether a layout is the portfolio cover rather than a classic composition. */
+export function isCoverCaseVariant(variant: CaseVariantId): variant is "n1" {
+  return variant === "n1";
+}
 
 /** Whether a layout carries a person photo instead of a product screenshot. */
 export function usesPortrait(variant: CaseVariantId): boolean {
@@ -95,7 +107,11 @@ export const FONT_SCALE_MIN = 60;
 export const FONT_SCALE_MAX = 180;
 export const FONT_SCALE_STEP = 5;
 
-export interface CaseEditorState extends CaseColors, CaseFontScales {
+export interface CaseEditorState
+  extends CaseColors,
+    CaseFontScales,
+    CoverCopy,
+    CoverPhoto {
   variant: CaseVariantId;
   product: string;
   domain: string;
@@ -132,6 +148,7 @@ export const CASE_TAG_LIMITS: Record<CaseVariantId, number> = {
   p5: 4,
   p6: 4,
   p7: 4,
+  n1: 0,
 };
 
 /** The most any layout can show, so the editor never collects dead rows. */
@@ -184,6 +201,12 @@ export const DEFAULT_CASE_STATE: CaseEditorState = {
   portraitPos: { x: 0, y: 0 },
   portraitHint: "Drop a photo",
   portraitScale: 100,
+  coverEyebrow: "Portfolio case",
+  coverTitle: "Project",
+  coverAccent: "Title",
+  coverDescription: "Short project description goes here",
+  coverPhotoPos: { x: 0, y: 0 },
+  coverPhotoScale: 100,
 };
 
 export interface CaseVariantDef {
@@ -206,6 +229,7 @@ export const CASE_VARIANT_DEFS: CaseVariantDef[] = [
   { id: "p5", num: "10", label: "Accent split · photo" },
   { id: "p6", num: "11", label: "Accent full · photo" },
   { id: "p7", num: "12", label: "Photo backdrop" },
+  { id: "n1", num: "13", label: "Portfolio · photo" },
 ];
 
 /**
